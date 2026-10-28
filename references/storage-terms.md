@@ -1,6 +1,6 @@
 # Storage & Aging Terms
 
-Verbatim from Cigar Capitol (Storage & Aging category), extracted to keep this skill usable offline and to keep phrasing faithful to the source. Chinese renderings in answers must be paraphrases of these definitions, never a claim of translated canon.
+Storage failures - humidity swings, beetles, plume mistaken for mould. Chinese renderings must paraphrase these definitions, never claim to translate canon.
 
 ## Acclimation
 */ ak-luh-MAY-shun / | Storage & Aging*

@@ -65,10 +65,39 @@ python3 scripts/build_index.py
 
 ### Answering storage and leaf questions
 
-`references/storage-terms.md` and `references/terroir.md` hold Cigar Capitol
-entries verbatim so these answers work offline. Each entry has a definition, why
-it matters, and a real usage sentence — quote or paraphrase those rather than
-inventing phrasing.
+Cigar Capitol entries are cached locally so these answers work offline. Each
+entry carries a definition, why it matters, and a real usage sentence — quote or
+paraphrase those rather than inventing phrasing.
+
+`references/capitol-index.md` lists **all 329 terms** the dictionary publishes,
+with a one-line gloss and the slug for each. **Search it before answering** —
+relevant terms are scattered across categories, so guessing which file holds an
+answer is unreliable:
+
+```bash
+grep -n -i 'plume\|mold\|beetle' references/capitol-index.md
+grep -n -i 'maduro\|oscuro\|wrapper' references/capitol-index.md
+```
+
+Full entries are cached for the six categories this skill depends on:
+
+| File | Category | Covers |
+|---|---|---|
+| `storage-terms.md` | Storage & Aging | 19 — humidity, beetles, calibration, storage failures |
+| `terroir.md` | Growing & Terroir | 33 — why a region's leaf behaves as it does |
+| `leaf-varieties.md` | Tobacco & Leaf | 39 — wrapper varieties that decide flavour group |
+| `production-curing.md` | Production & Curing | 36 — fermentation, including **Plume vs Mold** |
+| `anatomy.md` | Anatomy | 36 — wrapper / binder / filler / priming grades |
+| `flavour-tasting.md` | Flavor & Tasting | 20 — strength, body, finish |
+
+Note where `Plume vs Mold` lives. It is the most-asked storage question and it
+sits under Production & Curing, not Storage & Aging — which is why a
+category-scoped cache missed it. The distinction is also decisive: plume brushes
+off cleanly and leaves no mark; mould is raised, patchy, stains the leaf and
+smells musty.
+
+If a term exists only in the index, fetch it live with the slug shown there:
+`https://cigarcapitol.com/dictionary/<slug>/`
 
 One known conflict must be surfaced rather than smoothed over. Sources disagree
 on the temperature at which tobacco beetles become active: some guidance cites
@@ -143,7 +172,15 @@ Smoking harms health. This is reference material for adults.
 | File | Read when |
 |---|---|
 | `references/matching-rules.md` | Before any catalogue lookup — the three-stage rule and the failures that motivated it |
+| `references/capitol-index.md` | **Search first** for any terminology, leaf or production question — all 329 terms with glosses |
+| `references/storage-terms.md` | Humidity, beetles, calibration, seasoning, storage failures |
+| `references/leaf-varieties.md` | Identifying a wrapper type, deciding fermentation level |
+| `references/production-curing.md` | Plume vs mold, fermentation stages, wrapper aging |
+| `references/terroir.md` | Why a leaf tastes the way it does, or which region a wrapper came from |
+| `references/anatomy.md` | Explaining wrapper / binder / filler / priming fields from a spec sheet |
+| `references/flavour-tasting.md` | Strength, body and finish questions, or drink pairing calls |
 | `references/data-sources.md` | Assessing which site can answer something, or whether a figure is trustworthy |
 | `references/flavour-groups.md` | Assigning a storage group, deciding a humidity target |
-| `references/storage-terms.md` | Any storage, humidity, mould, beetle or calibration question |
-| `references/terroir.md` | Why a leaf tastes the way it does, or which region a wrapper came from |
+
+The index is large, so grep it rather than reading it whole. The six category
+files are each small enough to read directly.

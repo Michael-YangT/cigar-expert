@@ -39,8 +39,28 @@ guess.
   leaf behaves
 - Also city histories, a brand/factory encyclopedia, and a 90-cigar catalog
 - URLs need a trailing slash: `/dictionary/<slug>/`
+- The index page lists every term with a short gloss, so full discoveries take
+  one request — `scripts/fetch_capitol.py` works that way rather than walking a
+  hardcoded slug list
 
-This is the offline backbone — see `storage-terms.md` and `terroir.md`.
+Terms are spread across categories in a way that defeats guessing. Six of the
+eleven carry exactly what this skill answers, and all 183 are cached locally:
+
+| Category | Terms | Answers |
+|---|---|---|
+| Storage & Aging | 19 | humidity, beetles, calibration, storage failures |
+| Growing & Terroir | 33 | why a region's leaf behaves as it does |
+| Tobacco & Leaf | 39 | wrapper varieties, decided by fermentation level |
+| Production & Curing | 36 | fermentation stages, including Plume vs Mold |
+| Anatomy | 36 | wrapper / binder / filler / priming grades |
+| Flavor & Tasting | 20 | strength, body, finish, pairing |
+
+`Plume vs Mold` sits under Production & Curing, **not** Storage & Aging. Fetching
+only the latter silently loses the most-asked storage question, which is exactly
+the failure the discovery-driven fetch now avoids.
+
+All 329 terms, including the five uncovered categories, are indexed offline in
+`capitol-index.md`. This is the offline backbone.
 
 ### Cigar Aficionado — cigaraficionado.com
 

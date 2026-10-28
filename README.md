@@ -160,12 +160,17 @@ cigar-skill/
 │   ├── lookup.py                         三段式查型号 + 抓参数
 │   └── fetch_capitol.py                  刷新离线术语库
 ├── references/
-│   ├── matching-rules.md                 匹配铁律与失败案例
-│   ├── data-sources.md                   七站评估
-│   ├── flavour-groups.md                 气味组分盒
-│   ├── storage-terms.md                  19 条养护术语（离线）
-│   ├── terroir.md                        14 个产区（离线）
-│   └── personal-ledger.example.md        个人层模板
+│   ├── capitol-index.md               全部 329 术语索引（含释义，供检索）
+│   ├── storage-terms.md               19 · 养护与老化
+│   ├── terroir.md                     33 · 产区与叶子特性
+│   ├── leaf-varieties.md              39 · 茄衣/茄芯品种
+│   ├── production-curing.md           36 · 发酵与生产（含 Plume vs Mold）
+│   ├── anatomy.md                     36 · 结构：茄衣/茄套/茄芯
+│   ├── flavour-tasting.md             20 · 强度、口感、余味
+│   ├── matching-rules.md              匹配铁律与失败案例
+│   ├── data-sources.md                七站评估
+│   ├── flavour-groups.md              气味组分盒
+│   └── personal-ledger.example.md     个人层模板
 └── .gitignore
 ```
 
