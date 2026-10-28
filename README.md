@@ -22,7 +22,7 @@ collection data. See [Privacy](#隐私设计).
 | 这盒能不能和其他茄放一起？ | 按茄衣判气味组和湿度目标 |
 | 我的柜子里有多少支、该怎么安排？ | 需先配置 `personal-ledger.md`，见下 |
 
-Bilingual output is the default: 「Plasencia Alma Fuerte Sixto II Hexagono（六边形）」，not just「普拉森西亚 六边形」。Cigar names do not translate cleanly and losing the English string makes the cigar unsearchable.
+Bilingual output is the default: 「Arturo Fuente Hemingway Classic（海明威经典）」，not just「阿图罗·富恩特 海明威」。Cigar names do not translate cleanly and losing the English string makes the cigar unsearchable.
 
 ---
 
@@ -127,11 +127,11 @@ permits the ordinary content paths and disallows only `/es/ajax`, `/en/ajax` and
 - 未配置该文件时，Skill 只回答通用问题，不会假设你有收藏
 - 型号举例为市面常见款，不含总数、行数或台账路径
 
-有一处例外值得知道：`references/flavour-groups.md` 含作者的 7 组分盒方法论，
-包括每组的盒数。这是刻意要分享的部分，而非泄漏。若你希望它也私有，把那几张表
-移进 `references/personal-ledger.md` —— 该文件已被 gitignored。
+Nothing here refers to any particular collection. Examples use ordinary retail
+models and carry no ownership meaning.
 
-Before pushing, read `git diff` and check what actually ships.
+Before pushing, read `git diff` and check what actually ships. No personal or
+commercial information belongs in this repository.
 
 If you fork this, keep that boundary. Do not commit your own ledger path.
 

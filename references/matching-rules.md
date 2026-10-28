@@ -5,8 +5,8 @@ How to turn a cigar name into a catalogue record without corrupting a ledger.
 ## Why these rules are strict
 
 A naive substring search across the 19,191-entry catalogue was tried first and
-validated against a real working ledger. It scored apparent "hits" on a majority
-of rows, but inspection showed many were wrong. The same failures will recur if
+validated during development against an ordinary multi-row ledger. It scored
+apparent "hits" on a majority of rows, but inspection showed many were wrong. The same failures will recur if
 matching is loosened.
 
 ### Failure 1 — a bare digit hides inside another number
@@ -94,8 +94,8 @@ Each path covers the other's blind spot:
 - Path 2 is why merely asking for `Oliva Robusto` does **not** get `high`. Every
   robusto in the line satisfies that request, so no single one can be asserted.
 
-Real examples from a working ledger, where raising `high` would have written the
-wrong cigar:
+Everyday requests where the requested name genuinely does not identify one
+product, and where asserting `high` would have named the wrong cigar:
 
 | Request | Would have been asserted | Why it must stay `review` |
 |---|---|---|

@@ -24,9 +24,9 @@ string is what identifies the cigar in a catalogue.
 
 What that looks like:
 
-- Correct: 「Plasencia Alma Fuerte Sixto II Hexagono（六边形），盒压完美型，Nicaraguan 茄芯」
-- Wrong: 「普拉森西亚 六边形」（only Chinese, loses the searchable name）
-- Wrong: an English-only answer, since the user reads these notes in Chinese
+- Correct: 「Arturo Fuente Hemingway Classic（海明威经典），Perfecto 型，Cameroon 茄衣」
+- Wrong: 「阿图罗·富恩特 海明威」（only Chinese, loses the searchable name）
+- Wrong: an English-only answer to a question asked in Chinese
 
 Trade terms such as wrapper / binder / filler also stay bilingual — write
 「茄衣（wrapper）」rather than picking one language.
@@ -70,18 +70,23 @@ entries verbatim so these answers work offline. Each entry has a definition, why
 it matters, and a real usage sentence — quote or paraphrase those rather than
 inventing phrasing.
 
-One known conflict must be surfaced rather than smoothed over: the user's own
-notes say tobacco beetles become active above **24°C**, while Cigar Capitol
-states eggs hatch reliably above roughly **22°C (72°F)**. Mention both figures
-and their sources. Never silently pick one.
+One known conflict must be surfaced rather than smoothed over. Sources disagree
+on the temperature at which tobacco beetles become active: some guidance cites
+**24°C**, while Cigar Capitol states eggs hatch reliably above roughly
+**22°C (72°F)**. Mention both figures and attribute each, then let the user
+decide which margin to work to. Never silently pick one.
 
 ### Assigning a storage flavour group
 
-`references/flavour-groups.md` carries the user's own seven-group scheme — five
-odour categories plus two structural groups — with the wrapper-to-group mapping
-and the humidity that follows from each group. The governing insight is theirs:
-**odour strength follows wrapper fermentation level and origin, not how strong the cigar tastes when smoked.** A mild-tasting Cuban
-short-filler is a strong odour source; a medium Davidoff is clean.
+`references/flavour-groups.md` carries a seven-group scheme — five odour
+categories plus two structural groups — with the wrapper-to-group mapping and the
+humidity that follows from each group. Its governing insight drives every answer
+here: **odour strength follows wrapper fermentation level and origin, not how
+strong the cigar tastes when smoked.** A mild-tasting Cuban short-filler is a
+strong odour source; many mainstream non-Cuban puros are comparatively clean.
+
+Sorting by wrapper therefore sorts both odour risk and humidity at the same time,
+so there is no trade-off to negotiate between the two.
 
 ### Working against the personal ledger
 
@@ -121,8 +126,8 @@ of all seven sites.
 This skill does not do these things, ever:
 
 - **No purchasing advice, retailers, links or price guidance.** The `lookup.py`
-  script strips price fields from its output for this reason. The user's own
-  data policy excludes commercial information.
+  script strips price fields from its output for this reason. Commercial
+  information is out of scope entirely.
 - **No authentication verdicts.** Provide counterfeit criteria and observable
   checks only, never a genuine/fake conclusion on a specific cigar.
 - **No writing to the ledger.** Suggestions only, marked with confidence.
