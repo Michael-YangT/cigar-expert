@@ -6,6 +6,9 @@ references/personal-ledger.md
 # Generated indexes - rebuild in seconds with scripts/build_index.py
 data/
 
+# Tooling state - not part of the skill
+.workbuddy/
+
 # Python
 __pycache__/
 *.py[cod]
