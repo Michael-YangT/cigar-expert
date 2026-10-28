@@ -1,0 +1,21 @@
+# Personal files
+
+Your own ledger configuration - never commit this.
+references/personal-ledger.md
+
+# Generated indexes - rebuild in seconds with scripts/build_index.py
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# Editors
+*.swp
+*~
