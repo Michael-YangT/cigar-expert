@@ -55,6 +55,11 @@ def collect_urls(xml: str, pattern: re.Pattern[str]) -> list[str]:
 
 
 def build(outdir: Path, cache: Path, force: bool) -> tuple[int, int]:
+    # Must happen first. A fresh clone has no data/ at all - it is gitignored -
+    # so the sitemap cache below would otherwise be written into a missing
+    # directory and the build would fail before producing anything.
+    outdir.mkdir(parents=True, exist_ok=True)
+
     if force or not cache.exists():
         print(f"fetching sitemap index ...", file=sys.stderr)
         index_xml = fetch(SITEMAP_INDEX)
@@ -81,7 +86,6 @@ def build(outdir: Path, cache: Path, force: bool) -> tuple[int, int]:
     if not cigars:
         raise SystemExit("error: no cigar product URLs found - site layout may have changed")
 
-    outdir.mkdir(parents=True, exist_ok=True)
     (outdir / "brands.txt").write_text("\n".join(brands) + "\n", encoding="utf-8")
     (outdir / "cigars.txt").write_text("\n".join(cigars) + "\n", encoding="utf-8")
     return len(brands), len(cigars)
