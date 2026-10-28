@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""Read one Cigar Aficionado rating page and return its verdict.
+
+This is deliberately a single-page tool. It does not crawl, does not walk any
+sitemap, and does not use the site's search - their robots.txt disallows both
+/search and /ratings/search*. Finding which page to read is the caller's job,
+normally a web search such as:
+
+    site:cigaraficionado.com/ratings <brand> <model>
+
+which is allowed and takes one request rather than thousands.
+
+The 100-point score is the industry's most cited number, and unlike
+community ratings it comes from blind panel tastings. Use it to corroborate,
+never as the only evidence.
+
+**Price is stripped from the output on purpose.** This skill gives no pricing,
+retail or purchasing guidance, and a script that quietly forwards the MSRP would
+be a back door around that rule. If you want the price, this is the wrong tool.
+
+Usage:
+    python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/27174/name/tatuaje-cabinet-tainos-double-corona
+    python3 scripts/fetch_rating.py --check
+
+Exit codes: 0 ok, 1 usage or not a ratings page, 2 network failure.
+"""
+
+from __future__ import annotations
+
+import argparse
+import html
+import json
+import re
+import sys
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+
+# The exact field order used by the rating template. Each label is followed by
+# its value on the next non-empty line.
+KEY_ORDER = ["SCORE", "LENGTH", "GAUGE", "STRENGTH"]
+DETAIL_KEYS = [
+    "Size",
+    "Filler",
+    "Binder",
+    "Wrapper",
+    "Country",
+    "Issue",
+]
+# Dropped rather than parsed: commercial data, out of scope for this skill.
+DROP_KEYS = {"Price"}
+
+CACHE_DIR = ROOT / "data" / "ratings"
+
+
+def get(url: str) -> str:
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return r.read().decode("utf-8", "replace")
+
+
+def lines_of(page: str) -> list[str]:
+    body = re.sub(r"<script.*?</script>", "", page, flags=re.S)
+    body = re.sub(r"<style.*?</style>", "", body, flags=re.S)
+    text = html.unescape(re.sub(r"<[^>]+>", "|", body))
+    text = re.sub(r"\|{2,}", "|", text)
+    return [s.strip() for s in text.split("|") if s.strip()]
+
+
+def squash(raw: str) -> str:
+    """Collapse the stray newlines the template leaves inside values."""
+    return re.sub(r"\s+", " ", raw).strip()
+
+
+def parse(page: str) -> dict:
+    lines = [squash(s) for s in lines_of(page)]
+
+    def value_after(label: str) -> str:
+        for i, line in enumerate(lines):
+            if line == label:
+                j = i + 1
+                while j < len(lines) and lines[j] in ("points", ""):
+                    j += 1
+                return lines[j] if j < len(lines) else ""
+        return ""
+
+    header: dict[str, str] = {}
+    for key in KEY_ORDER:
+        if v := value_after(key):
+            header[key] = v
+
+    # "Details" block - label, then value on the following line.
+    details: dict[str, str] = {}
+    for key in DETAIL_KEYS:
+        label = key + ":"
+        for i, line in enumerate(lines):
+            if line == label:
+                j = i + 1
+                while j < len(lines) and not lines[j].strip():
+                    j += 1
+                if j < len(lines):
+                    details[key] = lines[j]
+                break
+
+    tasting = ""
+    m_idx = None
+    for i, line in enumerate(lines):
+        if line == "Tasting Note":
+            m_idx = i + 1
+            break
+    if m_idx:
+        note = []
+        for line in lines[m_idx:]:
+            if line in ("Details", "More Reviews of this Cigar") or line.endswith(":"):
+                break
+            note.append(line)
+        tasting = " ".join(note).strip()
+
+    # Repeat reviews appear as "<score> points" followed by an issue/date line.
+    # Pair them so each past verdict stays attached to when it was given.
+    repeats = []
+    i = lines.index("More Reviews of this Cigar") if "More Reviews of this Cigar" in lines else -1
+    if i > 0:
+        pending = None
+        for line in lines[i + 1 : i + 14]:
+            if re.fullmatch(r"\d{2,3}", line):
+                pending = line
+            elif line.lower() in ("points", "point"):
+                continue
+            elif pending is not None:
+                repeats.append({"score": pending, "issue": line.replace("Cigar Aficionado", "").strip(" :–- ")})
+                pending = None
+
+    # The primary review's own issue tracker is not rendered there; if the
+    # Details block has it, use it for consistency with the repeats above.
+    issue = details.get("Issue", "").replace("Cigar Aficionado", "").strip(" :–- ")
+
+    title = lines[0] if lines else ""
+
+    return {
+        "title": title,
+        "score": header.get("SCORE"),
+        "length": header.get("LENGTH"),
+        "ring_gauge": header.get("GAUGE"),
+        "strength": header.get("STRENGTH"),
+        "reviewed_issue": issue,
+        "details": details,
+        "tasting_note": tasting,
+        "other_reviews": repeats,
+        # Stated explicitly so nobody re-adds it by accident.
+        "notes": "Price intentionally omitted - this skill gives no commercial guidance.",
+    }
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    g = ap.add_mutually_exclusive_group(required=True)
+    g.add_argument("--url", help="one Cigar Aficionado rating page")
+    g.add_argument("--check", action="store_true", help="verify reachability")
+    ap.add_argument("--no-cache", action="store_true", help="skip the local page cache")
+    args = ap.parse_args()
+
+    if args.check:
+        url = "https://www.cigaraficionado.com/ratings"
+        try:
+            get(url)
+        except Exception as exc:
+            print(f"unreachable: {exc}", file=sys.stderr)
+            return 2
+        print("Cigar Aficionado reachable. Remember: no crawling, no /search.")
+        return 0
+
+    url = args.url.strip()
+    if "cigaraficionado.com/ratings/" not in url:
+        print("Not a Cigar Aficionado ratings URL.", file=sys.stderr)
+        return 1
+
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    key = re.sub(r"[^a-zA-Z0-9]+", "_", url.split("/ratings/")[-1])[:80] + ".html"
+    cached = CACHE_DIR / key
+
+    if cached.exists() and not args.no_cache:
+        page = cached.read_text(encoding="utf-8", errors="replace")
+        source = "cache"
+    else:
+        try:
+            page = get(url)
+        except Exception as exc:
+            print(f"Fetch failed: {exc}", file=sys.stderr)
+            return 2
+        cached.write_text(page, encoding="utf-8")
+        source = "network"
+
+    out = parse(page)
+    out["url"] = url
+    out["source"] = source
+    print(json.dumps(out, ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

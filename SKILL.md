@@ -63,6 +63,67 @@ If the indexes are missing, build them once:
 python3 scripts/build_index.py
 ```
 
+### Chinese domestic cigars — a different route entirely
+
+Cigar Century carries **no** Chinese domestic models, so asking it about 长城,
+黄鹤楼, 王冠 or 泰山 returns nothing useful. 雪茄 123 is the only source that
+documents them, and it is the primary—not fallback—source for anything Chinese.
+
+```
+python3 scripts/fetch_domestic.py --build-index          # once
+python3 scripts/fetch_domestic.py --find 长城
+python3 scripts/fetch_domestic.py --detail <url>
+```
+
+Its detail pages are unusually complete, and map onto the columns a typical
+ledger actually wants: 品牌, 系列, 工艺, 尺寸 (length in mm, ring gauge, vitola
+name and smoking time in one line), 浓度, 包装, 产地, plus free-text 原料配方 and
+风味品鉴 blocks.
+
+Search the local index by Chinese **or** English keyword. Because it holds every
+model of a given line with bilingual names, it is the right tool for identifying
+a partially labelled cigar — match on ring gauge and length, then present the
+few candidates that fit and let the user choose. Do not guess between them.
+
+### Scoring and tasting notes
+
+Blind-panel scores come from Cigar Aficionado, which uses the 100-point scale
+everyone quotes. It is corroborating evidence, never the sole answer.
+
+```
+python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/<id>/name/<slug>
+```
+
+There is no searchable index, and the site forbids scripted search, so find the
+URL with an ordinary web search first:
+`site:cigaraficionado.com/ratings <brand> <model>`. One page per request, never
+a crawl. The page yields score, length, ring gauge, strength, wrapper/binder/
+filler, country, the panel's tasting note, and any earlier review scores for the
+same cigar — which is the most useful part, since a cigar's score drifts across
+release years.
+
+**Price is stripped before anything is printed**, because commercial guidance is
+out of scope.
+
+### New releases and news
+
+New lines appear on halfwheel weeks or months before any database has them. When
+a user asks about a cigar no catalogue recognises, check here before concluding
+it does not exist.
+
+```
+python3 scripts/fetch_news.py
+python3 scripts/fetch_news.py --date 2026/10/27
+```
+
+Expect `status: blocked` — halfwheel sits behind a Cloudflare managed challenge
+that no script can pass. That is not an error and **must not** be fixed by
+retrying. Use the built-in web-fetch tool instead, and browse the stable date
+archive rather than the site search:
+
+- `https://halfwheel.com/` — latest
+- `https://halfwheel.com/date/YYYY/MM/DD/` — everything published that day
+
 ### Answering storage and leaf questions
 
 Cigar Capitol entries are cached locally so these answers work offline. Each
@@ -139,11 +200,16 @@ the configured ledger, which is always more current.
 
 | Purpose | Use first | Fall back to |
 |---|---|---|
-| Vitola, ring gauge, strength, leaf components, flavour tags | Cigar Century | — |
-| Terminology, terroir, storage science, city and factory history | Cigar Capitol | — |
-| Authoritative 100-point scoring and tasting notes | Cigar Aficionado | 雪茄 123 scoring archive |
-| Chinese-language models including Chinese domestic brands | 雪茄 123 | — |
-| New releases, regional editions, official RRP | halfwheel | Cigar Aficionado news |
+| Vitola, ring gauge, strength, leaf components, flavour tags | Cigar Century via `lookup.py` | 雪茄 123 via `fetch_domestic.py` |
+| Chinese domestic brands (长城, 黄鹤楼, 王冠, 泰山) | **雪茄 123** | nothing else covers them |
+| Terminology, terroir, storage science, city and factory history | Cigar Capitol via cached references | live fetch of one dictionary slug |
+| Authoritative 100-point scoring and tasting notes | Cigar Aficionado via `fetch_rating.py` | 雪茄 123 tasting blocks |
+| Identifying a partially labelled cigar | cross-check length and ring gauge across both indexes | — |
+| New releases, limited and regional editions | halfwheel via the built-in fetch tool | Cigar Aficionado news |
+
+Three of these need a web search to locate a URL: Cigar Aficionado rating pages
+cannot be enumerated from here, and neither their robots rules nor common sense
+permit scraping one into existence.
 
 **Cigar Directory is not a source.** Its top-ten ranking is all tied at 5.0 with
 no separation, and it lists a 178 mm cigar as 178 inches. Its data would
@@ -154,9 +220,11 @@ of all seven sites.
 
 This skill does not do these things, ever:
 
-- **No purchasing advice, retailers, links or price guidance.** The `lookup.py`
-  script strips price fields from its output for this reason. Commercial
-  information is out of scope entirely.
+- **No purchasing advice, retailers, links or price guidance.** Both `lookup.py`
+  and `fetch_rating.py` strip price fields for this reason — Cigar Aficionado
+  prints an MSRP on every rating page and halfwheel reports official retail
+  prices in release coverage. Quote a verdict or a spec; never a price.
+  Commercial information is out of scope entirely.
 - **No authentication verdicts.** Provide counterfeit criteria and observable
   checks only, never a genuine/fake conclusion on a specific cigar.
 - **No writing to the ledger.** Suggestions only, marked with confidence.
@@ -179,8 +247,11 @@ Smoking harms health. This is reference material for adults.
 | `references/terroir.md` | Why a leaf tastes the way it does, or which region a wrapper came from |
 | `references/anatomy.md` | Explaining wrapper / binder / filler / priming fields from a spec sheet |
 | `references/flavour-tasting.md` | Strength, body and finish questions, or drink pairing calls |
-| `references/data-sources.md` | Assessing which site can answer something, or whether a figure is trustworthy |
 | `references/flavour-groups.md` | Assigning a storage group, deciding a humidity target |
+| `references/data-sources.md` | Assessing which site can answer something, or whether a figure is trustworthy |
 
-The index is large, so grep it rather than reading it whole. The six category
-files are each small enough to read directly.
+Two notes on cost. `capitol-index.md` holds all 329 terms with glosses and is
+too large to read whole — grep it, then open only the category file a term
+belongs to; each of the six is small enough to read directly. And the 雪茄 123
+and Cigar Aficionado routes are live lookups, so prefer the cached Cigar Capitol
+files when the question is general enough for them to answer.

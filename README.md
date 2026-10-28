@@ -18,6 +18,9 @@ collection data. See [Privacy](#隐私设计).
 |---|---|
 | 这支茄什么参数？ | 输出尺寸、环径、强度、茄衣/茄套/茄芯、风味标签、评分，附来源链接 |
 | 这支我不认识、没法确定型号 | 三段式比对资料库，给候选 + 置信度；不确定就明说不确定 |
+| 国产茄（长城/黄鹤楼/王冠/泰山）什么型号？ | 查雪茄 123 中文库，按长度 + 环径给候选，中英双语名 |
+| 这支在权威评分里多少分？ | 引 Cigar Aficionado 百分制与历次复评，**剔除价格** |
+| 最近出了什么新款？有没有我手里这支的信息？ | 查 halfwheel 动态与日期归档 |
 | 长白毛是发霉还是开花？ | 引 Cigar Capitol 的判据，离线可答 |
 | 这盒能不能和其他茄放一起？ | 按茄衣判气味组和湿度目标 |
 | 我的柜子里有多少支、该怎么安排？ | 需先配置 `personal-ledger.md`，见下 |
@@ -39,26 +42,40 @@ cp -r cigar-expert ~/.workbuddy/skills/
 Then build the catalogue index (takes seconds):
 
 ```bash
-cd ~/.workbuddy/skills/cigar-skill
-python3 scripts/build_index.py
+cd ~/.workbuddy/skills/cigar-expert
+python3 scripts/build_index.py       # Cigar Century 型号库，约 7 秒
+python3 scripts/fetch_domestic.py --build-index   # 雪茄 123 中文库，约 80 秒
 ```
 
-That downloads the sitemap and writes `data/brands.txt` (4,757 brands) and
-`data/cigars.txt` (19,191 cigars). The indexes are gitignored — they are derived
-data and go stale.
+That writes `data/brands.txt` (4,757 brands) and `data/cigars.txt` (19,191
+non-Chinese models), plus `data/xuejia-index.tsv` (1,767 Chinese-facing pages:
+国产 143 · 古巴 1,084 · 非古 540). Indexes are gitignored — derived data, and
+they go stale.
 
 ## 用法
 
 ```bash
-# 查型号
+# 查型号（非国产）
 python3 scripts/lookup.py --brand "奥利瓦 Oliva" --model "Serie V Melanio Robusto"
 
 # 抓已知型号的完整参数
 python3 scripts/lookup.py --url "https://www.cigarcentury.com/en/cigars/oliva-serie-v-melanio-robusto"
 
-# 检查索引是否就绪
+# 查国产茄 —— Cigar Century 完全没有国产型号，必须走这里
+python3 scripts/fetch_domestic.py --find 长城
+python3 scripts/fetch_domestic.py --detail https://www.xuejia123.com/baike1/guochan/changcheng/132/91932.html
+
+# 查权威百分制评分（价格会被剔除）
+python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/27174/name/tatuaje-cabinet-tainos-double-corona
+
+# 检查环境
 python3 scripts/lookup.py --check
 ```
+
+New releases come from halfwheel, which blocks scripts behind a Cloudflare
+challenge. `fetch_news.py` detects that and prints the date-archive URLs to use
+with a normal web-fetch tool instead — treat its `blocked` output as the answer,
+not as a bug to retry past.
 
 Optional personal layer:
 
@@ -102,11 +119,11 @@ the fetches showed, not reputation.
 
 | Site | Verdict | What it is for |
 |---|---|---|
-| [Cigar Century](https://www.cigarcentury.com) | Primary | 19,191 型号参数库 |
-| [Cigar Capitol](https://cigarcapitol.com) | Primary | 329 术语 · 26 产区 · 每条标注置信度 |
-| [Cigar Aficionado](https://www.cigaraficionado.com) | Secondary | 权威 100 分制评分与品鉴笔记 |
-| [雪茄 123](https://www.xuejia123.com) | Secondary | 唯一中文源；国产茄唯一去处（须过滤 SEO 稿） |
-| [halfwheel](https://halfwheel.com) | Secondary | 行业新品与官方定价动态 |
+| [Cigar Century](https://www.cigarcentury.com) | Primary | 19,191 型号参数库（无国产） |
+| [雪茄 123](https://www.xuejia123.com) | Primary，国产唯一 | 1,767 中文条目；国产茄唯一去处（须过滤 SEO 稿） |
+| [Cigar Capitol](https://cigarcapitol.com) | Primary | 329 术语 · 33 产区 · 每条标注置信度 |
+| [Cigar Aficionado](https://www.cigaraficionado.com) | Secondary | 权威 100 分制评分与品鉴笔记；单页取用，禁止爬取与脚本搜索 |
+| [halfwheel](https://halfwheel.com) | Secondary | 行业新品动态；脚本被 Cloudflare 拦截，需走网页抓取工具 |
 | [Cigar Sense](https://www.cigarsense.com) | Restricted | 方法论可参考；核心功能需账号 |
 | ~~Cigar Directory~~ | **Rejected** | 榜单前十并列 5.0 无区分度；178mm 写成 178 英寸 |
 
@@ -141,7 +158,8 @@ If you fork this, keep that boundary. Do not commit your own ledger path.
 
 这个 Skill 不做以下事情：
 
-- **不提供购买建议、商家或链接** — `lookup.py` 主动剔除价格字段
+- **不提供购买建议、商家或链接** — `lookup.py` 与 `fetch_rating.py` 都主动剔除价格字段；halfwheel 的官方定价同样不转述
+- **不爬取** — Cigar Aficionado 明确禁止脚本访问其搜索；halfwheel 有风控。按仓库规定的单页 / 网页工具方式取用
 - **不出具真伪结论** — 只给判据和可观察检查
 - **不写你的台账** — 只出建议草稿，由你决定
 - **不猜型号** — 匹配失败就说失败
@@ -156,8 +174,11 @@ Smoking harms health. Reference material for adults only.
 cigar-skill/
 ├── SKILL.md                              主入口
 ├── scripts/
-│   ├── build_index.py                    从 sitemap 生成索引
+│   ├── build_index.py                    从 sitemap 生成 Cigar Century 索引
 │   ├── lookup.py                         三段式查型号 + 抓参数
+│   ├── fetch_domestic.py                 雪茄 123：中文库索引 / 检索 / 详情
+│   ├── fetch_rating.py                   Cigar Aficionado：单页评分（剔价格）
+│   ├── fetch_news.py                     halfwheel：新品，遇拦截则给出取用路径
 │   └── fetch_capitol.py                  刷新离线术语库
 ├── references/
 │   ├── capitol-index.md               全部 329 术语索引（含释义，供检索）

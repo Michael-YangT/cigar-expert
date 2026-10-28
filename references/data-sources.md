@@ -35,7 +35,7 @@ guess.
 
 - Dictionary: 329 terms in 11 categories, each with pronunciation, definition,
   why it matters, a real usage sentence and related terms
-- Tobacco Atlas: 26 growing regions covering soil, elevation, seed and how the
+- Tobacco Atlas: 33 growing regions covering soil, elevation, seed and how the
   leaf behaves
 - Also city histories, a brand/factory encyclopedia, and a 90-cigar catalog
 - URLs need a trailing slash: `/dictionary/<slug>/`
@@ -64,12 +64,28 @@ All 329 terms, including the five uncovered categories, are indexed offline in
 
 ### Cigar Aficionado — cigaraficionado.com
 
-The most authoritative scoring in the industry, on a 100-point scale with blind
-tastings. Also the annual Top 25 and Cigar of the Week.
+The most authoritative scoring in the industry, on a 100-point scale from blind
+panel tastings. Also the annual Top 25 and Cigar of the Week.
+
+A rating page yields score, length, ring gauge, strength, wrapper / binder /
+filler, country, the panel's tasting note, and earlier review scores for the same
+cigar — the last being the most useful part, since scores drift across release
+years.
 
 - Rating URLs follow `/ratings/<id>/name/<slug>` and fetch cleanly
 - Content skews to new releases and lifestyle features, so coverage of older or
   obscure lines is thin
+
+**Constraints are real, and `fetch_rating.py` is built around them.**
+
+- `robots.txt` disallows `/search` and `/ratings/search*`, and lists several AI
+  user-agents as disallowed outright. So this is a **single-page tool**: one URL
+  per invocation, never a crawl, never a sitemap walk.
+- There is no local index of their IDs. Find a URL with an ordinary web search —
+  `site:cigaraficionado.com/ratings <brand> <model>` — which costs one request
+  instead of thousands.
+- Every rating page prints an MSRP. It is stripped before output, along the same
+  line as `lookup.py`, because this skill gives no commercial guidance.
 
 Use it for scores and tasting notes, not for basic specifications.
 
@@ -83,19 +99,56 @@ three publications, and a 577-entry limited-edition chronicle from 1960 onwards.
 Also carries the most practical authentication material available — box seals,
 barcode checks, and cut-open comparisons.
 
+**Verified structure.** `fetch_domestic.py --build-index` walks 雪茄数据库 and
+returns 1,767 detail pages in three sections — 国产 143, 古巴 1,084, 非古 540 —
+discovered from 156 listing pages. The three section landing pages link only a
+fraction of that; reaching the rest requires walking parent directories upward
+from the pages already in hand, which is what the script does.
+
+Detail pages are markedly better structured than most reference sites. Each gives
+品牌, 系列, 工艺, 尺寸, 浓度, 包装, 产地, then free-text 原料配方, 风味品鉴 and
+综合评价 blocks. The 尺寸 line packs length in mm, ring gauge, vitola name and
+smoking time into one string, so `fetch_domestic.py --detail` splits those out
+separately — which is precisely what makes it usable for identifying a cigar
+whose label has been lost.
+
 **Filtering is mandatory.** The same pages mix in large volumes of SEO filler
 ("XX 雪茄 2026 价格走势分析", "抖音热销爆款榜单"). Treat only the encyclopaedia,
 chronicle and authentication sections as reference material.
 
-Treat it as the authority for domestic brands specifically.
+Treat it as the authority for domestic brands specifically. Cigar Century holds no
+Chinese domestic models at all, so for 长城、黄鹤楼、王冠、泰山 this is not a
+fallback — it is the only source.
 
 ### halfwheel — halfwheel.com
 
 Daily industry news: releases, set pricing, regional editions, festivals, plus a
-weekly roundup.
+weekly roundup. New lines surface here weeks or months ahead of any database, so
+it answers "does this cigar exist?" when every catalogue lookup comes back empty.
 
-Use it for what is new and what things cost at retail announcement. It is not a
-specification database and should not be used for one.
+Use it for what is new. It is not a specification database and should not be used
+for one, and its retail prices are not relayed by this skill.
+
+**Every script request is blocked.** The site sits behind a Cloudflare managed
+challenge: `/`, `/feed/`, `/wp-json/`, `/sitemap_index.xml` and `/robots.txt` all
+return 403 to plain HTTP clients, with or without browser-grade headers. No amount
+of header tuning fixes this, and retrying only gets the address noticed.
+
+The workable path is the built-in web-fetch tool, which reaches it fine, against
+these stable URLs:
+
+- `https://halfwheel.com/` — latest posts
+- `https://halfwheel.com/date/YYYY/MM/DD/` — everything published that day
+- `https://halfwheel.com/<post-slug>/<post-id>/` — one article
+- `https://halfwheel.com/?s=<term>` — site search, browser only
+
+Browse the date archive rather than searching: posts all carry a stable `/date/`
+path, so an archive page answers "what appeared this week" in one request.
+
+`fetch_news.py` encodes exactly this. It tries once, detects the challenge, and
+returns `status: blocked` with these patterns attached. Treat that output as the
+answer, not as something to retry past. Cached pages are not shipped, since
+news ceases to be news.
 
 ## Restricted
 
