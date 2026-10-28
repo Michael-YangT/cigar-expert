@@ -1,12 +1,15 @@
 ---
 name: cigar-expert
-description: Premium cigar reference and personal collection analyst. Use when looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler or flavour profile; when identifying an unknown or partially labelled cigar against a brand catalogue; when explaining storage science, humidity, plume versus mould, beetle risk or aging windows; when assigning a cigar to a cross-flavour storage group; or when advising which cigar to smoke now. Answers in Chinese with the original English name alongside. Sources are external reference sites, never retail or price guidance.
+description: This skill should be used when the user asks about premium cigars — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; or choosing which cigar to smoke now. Triggers include queries in Chinese such as 雪茄, 这支茄, 环径, 强度, 茄衣, 怎么养, 长白毛, 串味, 怎么搭配. It answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or price guidance.
 ---
 
 # Cigar Expert / 雪茄顾问
 
-A reference tool for premium cigars, built to serve both general lookup and one
-specific 666-cigar ledger kept in `~/Desktop/cigar-collection/`.
+A reference tool for premium cigars.
+
+Two layers. The general layer answers lookup, storage and flavour-group questions
+for anyone. The personal layer is optional and stays inert until a ledger is
+configured, so this skill ships with no collection data of its own.
 
 Everything here was validated against real data before it was written. The
 matching rules in `references/matching-rules.md` exist because a naive search
@@ -21,7 +24,7 @@ string is what identifies the cigar in a catalogue.
 
 What that looks like:
 
-- Correct: 「Plasencia Alma Fuerte Sixto II Hexagono（六边形)，盒压完美型，Nicaraguan 茄芯」
+- Correct: 「Plasencia Alma Fuerte Sixto II Hexagono（六边形），盒压完美型，Nicaraguan 茄芯」
 - Wrong: 「普拉森西亚 六边形」（only Chinese, loses the searchable name）
 - Wrong: an English-only answer, since the user reads these notes in Chinese
 
@@ -74,10 +77,10 @@ and their sources. Never silently pick one.
 
 ### Assigning a storage flavour group
 
-`references/flavour-groups.md` carries the user's own five-group scheme, the
-wrapper-to-group mapping, and the humidity that follows from each group. The
-governing insight is theirs: **odour strength follows wrapper fermentation level
-and origin, not how strong the cigar tastes when smoked.** A mild-tasting Cuban
+`references/flavour-groups.md` carries the user's own seven-group scheme — five
+odour categories plus two structural groups — with the wrapper-to-group mapping
+and the humidity that follows from each group. The governing insight is theirs:
+**odour strength follows wrapper fermentation level and origin, not how strong the cigar tastes when smoked.** A mild-tasting Cuban
 short-filler is a strong odour source; a medium Davidoff is clean.
 
 ### Working against the personal ledger
@@ -124,7 +127,7 @@ This skill does not do these things, ever:
   checks only, never a genuine/fake conclusion on a specific cigar.
 - **No writing to the ledger.** Suggestions only, marked with confidence.
 - **No guessing a cigar identity.** When matching fails, say it failed. A wrong
-  answer written into a 666-cigar ledger is worse than no answer.
+  answer written into a personal ledger is worse than no answer.
 - **No total counts or quantity arithmetic from memory.** The ledger is the only
   authority for numbers.
 

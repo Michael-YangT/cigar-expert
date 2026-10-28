@@ -17,20 +17,23 @@ collection data. See [Privacy](#隐私设计).
 | 问它 | 它做 |
 |---|---|
 | 这支茄什么参数？ | 输出尺寸、环径、强度、茄衣/茄套/茄芯、风味标签、评分，附来源链接 |
-| 这支我不认识、没法确定型号 | 三段式查铃网路库，给候选 + 置信度；不确定就明说不确定 |
+| 这支我不认识、没法确定型号 | 三段式比对资料库，给候选 + 置信度；不确定就明说不确定 |
 | 长白毛是发霉还是开花？ | 引 Cigar Capitol 的判据，离线可答 |
 | 这盒能不能和其他茄放一起？ | 按茄衣判气味组和湿度目标 |
 | 我的柜子里有多少支、该怎么安排？ | 需先配置 `personal-ledger.md`，见下 |
 
-Bilingual output is the default: ``Plasencia Alma Fuerte Sixto II Hexagono（六边形)``，not just「普拉森西亚 六边形」。Cigar names do not translate cleanly and losing the English string makes the cigar unsearchable.
+Bilingual output is the default: 「Plasencia Alma Fuerte Sixto II Hexagono（六边形）」，not just「普拉森西亚 六边形」。Cigar names do not translate cleanly and losing the English string makes the cigar unsearchable.
 
 ---
 
 ## 安装
 
+The folder name must match the skill name `cigar-expert`, because that is how
+the frontmatter resolves:
+
 ```bash
-git clone <your-repo-url>
-cp -r cigar-skill ~/.workbuddy/skills/
+git clone <your-repo-url> cigar-expert
+cp -r cigar-expert ~/.workbuddy/skills/
 ```
 
 Then build the catalogue index (takes seconds):
@@ -87,7 +90,7 @@ Full reasoning and all reproduced cases: [`references/matching-rules.md`](refere
 
 Confidence is always reported. `high` means present it; `review` means present it
 but say what did not match; `no_product_match` means say nothing was found rather
-than substituting a lookalike. A wrong answer written into a 666-cigar ledger is
+than substituting a lookalike. A wrong answer written into a real ledger is
 worse than no answer.
 
 ---
@@ -122,7 +125,13 @@ permits the ordinary content paths and disallows only `/es/ajax`, `/en/ajax` and
 - `references/personal-ledger.md` 记录你的台账路径与个人收藏细节 —— 已 gitignored
 - 仓库只 ship `personal-ledger.example.md`，一份空模板
 - 未配置该文件时，Skill 只回答通用问题，不会假设你有收藏
-- 型号举例为市面常见款，不涉及数量与存放位置
+- 型号举例为市面常见款，不含总数、行数或台账路径
+
+有一处例外值得知道：`references/flavour-groups.md` 含作者的 7 组分盒方法论，
+包括每组的盒数。这是刻意要分享的部分，而非泄漏。若你希望它也私有，把那几张表
+移进 `references/personal-ledger.md` —— 该文件已被 gitignored。
+
+Before pushing, read `git diff` and check what actually ships.
 
 If you fork this, keep that boundary. Do not commit your own ledger path.
 

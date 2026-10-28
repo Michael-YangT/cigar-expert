@@ -4,16 +4,17 @@ How to turn a cigar name into a catalogue record without corrupting a ledger.
 
 ## Why these rules are strict
 
-A naive substring search across the 19,191-entry catalogue was tried first. It
-scored apparent "hits" on 29 of 51 real ledger rows, but inspection showed many
-were wrong. The same failures will recur if matching is loosened.
+A naive substring search across the 19,191-entry catalogue was tried first and
+validated against a real working ledger. It scored apparent "hits" on a majority
+of rows, but inspection showed many were wrong. The same failures will recur if
+matching is loosened.
 
 ### Failure 1 — a bare digit hides inside another number
 
 `"黄鹤楼 Huanghelou" + "雪之梦6"` matched `262-allegiance-corona`.
 
 The digit `6` appeared inside `262`. Chinese domestic lines are frequently named
-with a版本号, so this is not a rare edge case.
+with a version number, so this is not a rare edge case.
 
 **Rule:** digits compare as whole tokens, never as substrings.
 
@@ -73,32 +74,68 @@ counts double. Prefer the tightest fit — highest score, then fewest extra toke
 Check that every size word the user named actually appears. If any is missing,
 the result is `size_confirmed: false` and confidence drops to `review`.
 
-This is what correctly flags entries like the user's own
-`Oliva Serie V Melanio Edicion Ano 2025 Robusto Extra`. The catalogue carries
-Melanio Edición Limitada up to 2023 but has no 2025 release, so the best score
-lands on a sibling vitola and is reported as unconfirmed rather than accepted.
+Confidence is decided by completeness plus disambiguation, not by raw token
+count. One bug worth remembering: an earlier version required simply `score >= 3`,
+which let short model names never reach `high` while simultaneously letting
+under-specified requests reach it. Both directions were wrong.
+
+The rule now requires that every requested token landed including any size, **and**
+that the cigar is pinned down by one of:
+
+1. **an exact match** — the product's own name is exactly the request
+2. **uniqueness** — exactly one candidate satisfies the request
+
+Each path covers the other's blind spot:
+
+- Path 1 is why `Serie V Melanio Robusto` stays `high` even though
+  `...-melanio-maduro-robusto` and `...-melanio-double-robusto` also satisfy the
+  request. Maduro and double-robusto are different cigars, so a superset must not
+  outrank what was literally asked for.
+- Path 2 is why merely asking for `Oliva Robusto` does **not** get `high`. Every
+  robusto in the line satisfies that request, so no single one can be asserted.
+
+Real examples from a working ledger, where raising `high` would have written the
+wrong cigar:
+
+| Request | Would have been asserted | Why it must stay `review` |
+|---|---|---|
+| Rocky Patel Vintage 1990 Robusto | `vintage-1990-broadleaf-robusto` | four variants also fit, including `2nds` (factory seconds) and `fumas` |
+| AJ Fernandez San Lotano Toro | `san-lotano-oval-toro` | nine variants — oval, bull, dominicano, several wrappers |
+| Montecristo Espada Guard | `espada-oscuro-guard` | two lines exist — Oscuro and by-Montecristo |
+| AJ Fernandez New World Oscuro Toro | `...-oscuro-toro-redondo` | both redondo and gobernador fit
+
+This is also what flags a coverage gap instead of silently accepting a neighbour.
+Requesting a release the catalogue does not carry — say `Oliva Serie V Melanio
+Edicion Ano 2025 Robusto Extra` when the line stops at 2023 — leaves `2025`,
+`robusto` and `extra` unmatched and lands on the nearest sibling vitola, reported
+at `review` rather than accepted.
+
+A short model name is not by itself weak. A fully explained request such as
+`"Quintero Brevas"` earns `high` even though its scores are small, because every
+token landed and nothing was added.
 
 ## Interpreting the result
 
 | Status | Meaning | Action |
 |---|---|---|
-| `high` | Score ≥ 3 and the size verified | Present the specs |
-| `review` | Matched, but size or some tokens did not | Present it labelled as unconfirmed; list what failed to match |
+| `high` | Every requested token landed, the size verified, and either an exact name match or a unique candidate | Present the specs |
+| `review` | Matched, but a token is missing, the size did not verify, or several candidates satisfy the request equally | Present it labelled as unconfirmed; say which condition failed and list the rivals |
 | `no_brand_match` | Brand could not be locked | Ask for the Latin brand name |
 | `no_product_match` | Brand locked, nothing underneath it fits | Say the catalogue lacks an entry — do not substitute |
 
-`lookup.py` always prints several candidates, not one. When two entries score
-similarly — `oliva-serie-v-melanio-robusto` against
-`oliva-serie-v-melanio-maduro-robusto`, for example — the difference is one word
-in the user's request, so ask rather than choosing.
+`lookup.py` always prints several candidates, not one. When two entries satisfy
+the request — `rocky-patel-vintage-1990-broadleaf-robusto` against
+`rocky-patel-2nds-vintage-maduro-1990-robusto`, for example — nothing in the
+request distinguishes them, so ask rather than choosing.
 
 ## Known catalogue gaps
 
-Verified against the real ledger, these absences are genuine and not bugs:
+These absences are properties of the catalogue, not bugs in the matcher. Expect
+`no_product_match` rather than forcing a substitute:
 
 - **Cohiba Wide Short** — the catalogue holds 119 Cohiba entries but not this one
 - **Guantanamera Coronas Tubo Gold Edition** — only 5 Guantanamera entries exist
-- **All Chinese domestic models** (黄鹤楼, 长城) — not in this catalogue at all;
+- **Chinese domestic lines** (长城, 黄鹤楼) — not in this catalogue at all;
   use 雪茄 123 for domestic brands
 
 Recent releases lag the market, so absence is expected for anything post-2023.

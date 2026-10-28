@@ -7,7 +7,7 @@ Two jobs:
   2. fetch  pull the full spec sheet for one resolved slug
 
 Why this exists rather than a plain substring search - all three mistakes below
-were reproduced against a real 666-cigar ledger during development:
+were reproduced during development:
 
   "Great Wall 雪之梦6"  -> "262-allegiance-corona"   a bare digit matched inside
                                                      another slug's number
@@ -149,6 +149,32 @@ def score_product(candidate_tail: str, model_toks: list[str]) -> tuple[int, list
     return score, missing
 
 
+def count_satisfying(brand_slug: str, model: str, cigars: list[str]) -> int:
+    """Count the branded candidates that satisfy the request in full.
+
+    Uniqueness, not token count, decides certainty. This count says how many
+    cigars the request could actually mean: exactly one means determined, more
+    than one means the request under-specifies and must stay at `review`. Extra
+    words in a slug alone prove nothing, since catalogues routinely append
+    qualifiers such as `-toro-redondo` or `-grand-master-tubo` to a product that
+    is otherwise unique.
+    """
+    model_toks = [t for t in tokens(slugify(model)) if t]
+    if not model_toks:
+        return 0
+    satisfying = 0
+    for c in cigars:
+        if not c.startswith(brand_slug + "-"):
+            continue
+        tail = c[len(brand_slug) + 1 :]
+        if not tail:
+            continue
+        _, missing = score_product(tail, model_toks)
+        if not missing:
+            satisfying += 1
+    return satisfying
+
+
 def find_candidates(brand_slug: str, model: str, cigars: list[str], top: int) -> list[dict]:
     owned = [c for c in cigars if c.startswith(brand_slug + "-")]
     if not owned:
@@ -182,6 +208,15 @@ def find_candidates(brand_slug: str, model: str, cigars: list[str], top: int) ->
                 "score": score,
                 "missing_tokens": missing,
                 "size_confirmed": not any(t in SIZE_WORDS for t in missing),
+                # True when the product's own name is exactly the request. An
+                # exact match outweighs every candidate that merely contains the
+                # request: `serie-v-melanio-robusto` is a different cigar from
+                # `serie-v-melanio-maduro-robusto`, and the plain one is what was
+                # asked for even though both satisfy the request.
+                "exact": sorted(tokens(tail)) == sorted(model_toks),
+                # >0 means the candidate carries words the request never mentioned,
+                # so absent an exact match the request under-specifies it.
+                "extra_tokens": len(tokens(tail)) - len(model_toks),
             }
         )
         if len(seen) >= top:
@@ -295,7 +330,13 @@ def main() -> int:
     for bslug in brand_hits[:2]:
         cands = find_candidates(bslug, args.model, cigars, args.top)
         if cands:
-            results.append({"brand_slug": bslug, "candidates": cands})
+            results.append(
+                {
+                    "brand_slug": bslug,
+                    "candidates": cands,
+                    "satisfying_candidates": count_satisfying(bslug, args.model, cigars),
+                }
+            )
             if cands[0]["size_confirmed"]:
                 break
 
@@ -315,12 +356,22 @@ def main() -> int:
         )
         return 0
 
+    # `high` needs three things: every requested token was found including any
+    # size, and the cigar is pinned down in one of two ways - either its own name
+    # is exactly the request, or it is the only candidate satisfying the request.
+    # Both paths are needed. The exact-match path lets a plain cigar through even
+    # when fancier siblings also satisfy the request; the uniqueness path is what
+    # stops a request of merely "Oliva Robusto" from claiming certainty about
+    # which Robusto it means.
+    best = results[0]["candidates"][0]
+    pinned = best["exact"] or results[0]["satisfying_candidates"] == 1
+    resolved = best["size_confirmed"] and not best["missing_tokens"] and pinned
     payload = {
         "status": "ok",
         "brand_query": args.brand,
         "model_query": args.model,
         "results": results,
-        "confidence": "high" if (results[0]["candidates"][0]["size_confirmed"] and results[0]["candidates"][0]["score"] >= 3) else "review",
+        "confidence": "high" if resolved else "review",
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0
