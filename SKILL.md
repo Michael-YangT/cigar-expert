@@ -1,12 +1,12 @@
 ---
 name: cigar-expert
-version: 1.2.0
+version: 1.3.0
 display_name: 雪茄顾问
 display_name_en: Cigar Expert
 agent_created: true
-description: This skill should be used when the user asks about premium cigars — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; or choosing which cigar to smoke now. Triggers include queries in Chinese such as 雪茄, 这支茄, 环径, 强度, 茄衣, 怎么养, 长白毛, 串味, 怎么搭配. It answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or price guidance.
-description_zh: 查雪茄型号参数，含尺寸、环径、强度与茄衣茄套茄芯；识别认不准或标不全的型号并给出候选与置信度；解释养护科学，含湿度、开花与发霉之别、虫害风险、醒茄与老化窗口；按茄衣气味组分盒；引用权威百分制评分并剔除价格。中文作答，保留英文原名，只引参考站，不给购买建议。
-description_en: Look up a cigar's vitola, ring gauge, strength and leaf components; identify an unknown or partially labelled cigar against a brand catalogue; explain storage science such as humidity, plume versus mould, beetle risk and aging windows; assign cigars to cross-flavour storage groups; and cite published 100-point scores. Answers in Chinese while keeping the English name alongside. Reference sites only, with no purchasing or pricing guidance.
+description: This skill should be used when the user asks about premium cigars — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; citing a published 100-point score; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; diagnosing a burn, draw or wrapper fault such as canoeing, tunneling, a plug, repeated relights or a cracked wrapper; pairing a drink or food; or deciding which cigar to smoke now given the time available and the strength ceiling. Triggers include queries in Chinese such as 雪茄, 这支茄, 环径, 强度, 茄衣, 怎么养, 长白毛, 串味, 斜烧, 抽不动, 怎么搭配, 配什么酒, 抽哪支, 选哪支. It answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or purchasing guidance.
+description_zh: 查雪茄型号参数，含尺寸、环径、强度与茄衣茄套茄芯；识别认不准或标不全的型号并给出候选与置信度；解释养护科学，含湿度、开花与发霉之别、虫害风险、醒茄与老化窗口；按茄衣气味组分盒；诊断斜烧、隧道烧、堵塞、反复熄火、爆衣等燃烧故障；按强度与风味组给酒食搭配；并结合可用时长与强度上限决定现在抽哪支。中文作答，保留英文原名，只引参考站，不给商家与购买引导。
+description_en: Look up a cigar's vitola, ring gauge, strength and leaf components; identify an unknown or partially labelled cigar against a brand catalogue; explain storage science such as humidity, plume versus mould, beetle risk and aging windows; assign cigars to cross-flavour storage groups; cite published 100-point scores; diagnose burn, draw or wrapper faults; pair a drink or food by intensity and flavour group; and decide which cigar to smoke now given the time available. Answers in Chinese while keeping the English name alongside. Reference sites only, with no retailers or purchasing guidance.
 ---
 
 # Cigar Expert / 雪茄顾问
@@ -232,6 +232,28 @@ belongs between a cigar and anything else. Where a pairing goes wrong, check
 storage before blaming the drink — an over-humidified cigar tastes flat and no
 whisky fixes that.
 
+### Choosing what to smoke now
+
+"What should I smoke tonight" is a narrowing problem, and
+`references/selection-guide.md` fixes the order: **state → time → strength →
+flavour**. A cigar that is wet, or that arrived last week, is not rescued by
+picking a better one from the same container, so the state check runs first even
+though it feels like a hygiene step.
+
+Two rules carry most of the value:
+
+- **Read the ledger before the catalogue.** If a ledger is configured, it holds
+  the answer, including the strength column. Recommending a purchase while
+  hundreds of cigars are already resting is not advice.
+- **The catalogue index has no strength field.** It indexes brand and model only.
+  Strength has to come from a page fetch per cigar via `lookup.py`, so never
+  claim to have filtered by strength, and never quote a strength from reputation.
+  Unverified strength is reported as unverified.
+
+Every answer here ends with anti-recommendations — what not to hand this person,
+and why. A list of suggestions with no exclusions is the answer a catalogue can
+already give.
+
 
 
 `references/flavour-groups.md` carries a seven-group scheme — five odour
@@ -317,6 +339,7 @@ Smoking harms health. This is reference material for adults.
 | `references/flavour-groups.md` | Assigning a storage group, deciding a humidity target |
 | `references/defect-diagnosis.md` | Any burn or draw fault — one cigar or several, and what to do |
 | `references/drink-pairing.md` | What to drink with a cigar, by intensity and flavour group |
+| `references/selection-guide.md` | Deciding which cigar to smoke now — state check, sizing by time, strength ceiling |
 | `references/data-sources.md` | Assessing which site can answer something, or whether a figure is trustworthy |
 
 Two notes on cost. `capitol-index.md` holds all 329 terms with glosses and is

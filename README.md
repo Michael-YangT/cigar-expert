@@ -22,6 +22,9 @@ collection data. See [Privacy](#隐私设计).
 | 这支在权威评分里多少分？ | 引 Cigar Aficionado 百分制与历次复评，`price_reference` 只给站点公布原值 |
 | 最近出了什么新款？有没有我手里这支的信息？ | 查 halfwheel 动态与日期归档 |
 | 长白毛是发霉还是开花？ | 引 Cigar Capitol 的判据，离线可答 |
+| 斜烧、隧道烧、抽不动、反复熄火怎么办？ | 先分清是「一支」还是「几支」出问题，再给处置步骤 |
+| 这支配什么酒？ | 按强度与风味组给搭配，水也是合法答案 |
+| 今晚只有一个小时，抽哪支？ | 按「状态→时长→强度→风味」收窄；有台账先看台账 |
 | 这盒能不能和其他茄放一起？ | 按茄衣判气味组和湿度目标 |
 | 我的柜子里有多少支、该怎么安排？ | 需先配置 `personal-ledger.md`，见下 |
 
@@ -203,6 +206,7 @@ cigar-skill/
 │   ├── flavour-groups.md              气味组分盒
 │   ├── defect-diagnosis.md           燃烧与结构故障：斜烧、隧道、堵塞
 │   ├── drink-pairing.md              酒食搭配：按强度与风味组
+│   ├── selection-guide.md            选茄：状态检查、按时长选尺寸、强度上限与反推荐
 │   └── personal-ledger.example.md     个人层模板
 └── .gitignore
 ```
