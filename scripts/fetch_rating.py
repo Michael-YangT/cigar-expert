@@ -18,7 +18,14 @@ never as the only evidence.
 retail or purchasing guidance, and a script that quietly forwards the MSRP would
 be a back door around that rule. If you want the price, this is the wrong tool.
 
+Because there is no index to query, the two steps are separated so neither can be
+skipped: `--find` prints the search and the follow-up command, `--url` reads the
+page that search turned up. `--find` performs no network request of its own — its
+`status` field says `needs_web_search` precisely so the caller cannot mistake a
+printed query for a performed search.
+
 Usage:
+    python3 scripts/fetch_rating.py --find "Tatuaje Cabinet Tainos"
     python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/27174/name/tatuaje-cabinet-tainos-double-corona
     python3 scripts/fetch_rating.py --check
 
@@ -53,6 +60,29 @@ DETAIL_KEYS = [
 DROP_KEYS = {"Price"}
 
 CACHE_DIR = ROOT / "data" / "ratings"
+
+# The only URL shape the parser below understands. Anything else from a search
+# result (a tag page, a brand page, an issue index) is rejected by main() before
+# a request is made, so a near-miss costs nothing.
+URL_PATTERN = r"https://www\.cigaraficionado\.com/ratings/\d+/name/[a-z0-9-]+"
+URL_SHAPE = "https://www.cigaraficionado.com/ratings/<id>/name/<slug>"
+
+
+def build_search(term: str) -> dict:
+    """Emit the search to run and the command that consumes its result."""
+    cleaned = re.sub(r"\s+", " ", term).strip()
+    return {
+        # Not "ok" and not a result: this function searched nothing.
+        "status": "needs_web_search",
+        "search_query": f"site:cigaraficionado.com/ratings {cleaned}",
+        "accept_url_shape": URL_SHAPE,
+        "then_run": 'python3 scripts/fetch_rating.py --url "<url from the search>"',
+        "rules": [
+            "Run the search with the web-search tool, not with this script.",
+            "Read at most the one page that matches; never crawl the site.",
+            "No matching URL means no published rating - say so, do not substitute a similar cigar.",
+        ],
+    }
 
 
 def get(url: str) -> str:
@@ -158,9 +188,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--url", help="one Cigar Aficionado rating page")
+    g.add_argument("--find", metavar="BRAND MODEL", help="print the search that leads to a rating page")
     g.add_argument("--check", action="store_true", help="verify reachability")
     ap.add_argument("--no-cache", action="store_true", help="skip the local page cache")
     args = ap.parse_args()
+
+    if args.find is not None:
+        if not re.search(r"[a-z0-9]", args.find, re.I):
+            print("--find needs a brand or model term.", file=sys.stderr)
+            return 1
+        print(json.dumps(build_search(args.find), ensure_ascii=False, indent=2))
+        return 0
 
     if args.check:
         url = "https://www.cigaraficionado.com/ratings"
@@ -172,9 +210,12 @@ def main() -> int:
         print("Cigar Aficionado reachable. Remember: no crawling, no /search.")
         return 0
 
-    url = args.url.strip()
-    if "cigaraficionado.com/ratings/" not in url:
-        print("Not a Cigar Aficionado ratings URL.", file=sys.stderr)
+    url = args.url.strip().split("#")[0].split("?")[0]
+    if not re.fullmatch(URL_PATTERN + r"/?", url):
+        # Rejecting here is deliberate: an index or brand page parses into empty
+        # fields, which reads like "this cigar has no score" rather than "wrong
+        # page". One clear failure beats a plausible-looking blank.
+        print("Not a single rating page. Expected " + URL_SHAPE, file=sys.stderr)
         return 1
 
     CACHE_DIR.mkdir(parents=True, exist_ok=True)

@@ -66,11 +66,14 @@ python3 scripts/fetch_domestic.py --find 长城
 python3 scripts/fetch_domestic.py --detail https://www.xuejia123.com/baike1/guochan/changcheng/132/91932.html
 
 # 查权威百分制评分（价格会被剔除）
+python3 scripts/fetch_rating.py --find "Tatuaje Cabinet Tainos"     # 先拿到检索式
 python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/27174/name/tatuaje-cabinet-tainos-double-corona
 
 # 检查环境
 python3 scripts/lookup.py --check
 ```
+
+`--find` 只打印检索式与下一步命令，本身不发请求，输出里的 `status: needs_web_search` 就是提醒别把它当结果。`--url` 只接受单条评分页，索引页会被直接拒掉——否则解析出一片空字段，看起来像「这支没有评分」。
 
 New releases come from halfwheel, which blocks scripts behind a Cloudflare
 challenge. `fetch_news.py` detects that and prints the date-archive URLs to use

@@ -1,5 +1,6 @@
 ---
 name: cigar-expert
+version: 1.0.0
 description: This skill should be used when the user asks about premium cigars — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; or choosing which cigar to smoke now. Triggers include queries in Chinese such as 雪茄, 这支茄, 环径, 强度, 茄衣, 怎么养, 长白毛, 串味, 怎么搭配. It answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or price guidance.
 ---
 
@@ -90,17 +91,26 @@ few candidates that fit and let the user choose. Do not guess between them.
 Blind-panel scores come from Cigar Aficionado, which uses the 100-point scale
 everyone quotes. It is corroborating evidence, never the sole answer.
 
+There is no searchable index and the site forbids scripted search, so finding
+the page is a separate step. Run the first command below to get the exact query,
+run that query with the web-search tool, then hand the URL it returns to the
+second command:
+
 ```
+python3 scripts/fetch_rating.py --find "Tatuaje Cabinet Tainos"
 python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/<id>/name/<slug>
 ```
 
-There is no searchable index, and the site forbids scripted search, so find the
-URL with an ordinary web search first:
-`site:cigaraficionado.com/ratings <brand> <model>`. One page per request, never
-a crawl. The page yields score, length, ring gauge, strength, wrapper/binder/
-filler, country, the panel's tasting note, and any earlier review scores for the
-same cigar — which is the most useful part, since a cigar's score drifts across
-release years.
+`--find` prints `status: needs_web_search` and a `search_query` of the form
+`site:cigaraficionado.com/ratings <brand> <model>`. It performs no request of its
+own — do not report a rating off that output alone. `--url` refuses anything that
+is not a single rating page, because an index page parses into blank fields that
+read like "no score published" instead of "wrong page". One page per request,
+never a crawl.
+
+The page yields score, length, ring gauge, strength, wrapper/binder/filler,
+country, the panel's tasting note, and any earlier review scores for the same
+cigar — the most useful part, since a cigar's score drifts across release years.
 
 **Price is stripped before anything is printed**, because commercial guidance is
 out of scope.
