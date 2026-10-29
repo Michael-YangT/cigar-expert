@@ -1,6 +1,6 @@
 ---
 name: cigar-expert
-version: 1.3.1
+version: 1.4.0
 display_name: 雪茄顾问
 display_name_en: Cigar Expert
 agent_created: true
@@ -304,6 +304,29 @@ no separation, and it lists a 178 mm cigar as 178 inches. Its data would
 contaminate a ledger. See `references/data-sources.md` for the full assessment
 of all seven sites.
 
+## Source grades, conflicts and receipts
+
+Grade every figure before answering, then attach the receipt. The full table and
+the traps live in `references/data-sources.md`; three rules bind here.
+
+- **A figure no page was fetched for is unusable.** Remembered numbers, plausible
+  numbers and assumed URLs are all the same category: they do not get said.
+- **Conflicting sources are never averaged.** Take the higher grade; at equal
+  grade print both with sources and no midpoint. Where a conflict drives an
+  action — a hazard threshold, a discard call — act on the conservative number
+  and say which source it came from. Blending two figures invents a third one
+  that nobody published.
+- **Answers carry receipts.** Source and field, grade (A/B/C), when retrieved or
+  that it is cached, and what the source does *not* cover. A field absent from a
+  source is "not recorded there", never absent and never low. Script confidence
+  goes in the answer too — delivering a `review` result as settled information
+  hides the doubt that made it a review.
+
+Two traps are restated here because guessing circumvents both: a Cigar Capitol URL
+that answers 200 may still not exist — an unlisted slug falls back to the
+homepage, so confirm each term against `capitol-index.md` — and a vitola name
+predicts nothing about its dimensions.
+
 ## Boundaries
 
 This skill does not do these things, ever:
@@ -340,7 +363,7 @@ Smoking harms health. This is reference material for adults.
 | `references/defect-diagnosis.md` | Any burn or draw fault — one cigar or several, and what to do |
 | `references/drink-pairing.md` | What to drink with a cigar, by intensity and flavour group |
 | `references/selection-guide.md` | Deciding which cigar to smoke now — state check, sizing by time, strength ceiling |
-| `references/data-sources.md` | Assessing which site can answer something, or whether a figure is trustworthy |
+| `references/data-sources.md` | Grading a figure, resolving two sources that disagree, checking a cite, or deciding whether a number is trustworthy at all |
 
 Two notes on cost. `capitol-index.md` holds all 329 terms with glosses and is
 too large to read whole — grep it, then open only the category file a term

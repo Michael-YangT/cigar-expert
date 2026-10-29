@@ -174,3 +174,102 @@ Do not use. Two defects found directly:
 
 Fewer fields than Cigar Century and lower reliability. Adding it to the source
 set risks writing wrong values into a ledger, so it is excluded.
+
+## Source grades / 源等级
+
+Every figure this skill reports carries a grade. The grade decides how the answer
+is worded, so grade first, then answer.
+
+| 等级 | Covers | Usage |
+|---|---|---|
+| **A** | A measured field read from a retrieved page — Cigar Century spec fields, Cigar Aficionado panel score and its per-year review table, 雪茄 123 detail pages restricted to the encyclopaedia, chronicle and authentication sections | State as fact. Name the site and the field. |
+| **B** | Editorial reference with a declared method or its own confidence label — every Cigar Capitol entry (verified / reported / estimated), Cigar Aficionado tasting notes | State with attribution, and carry the source's own confidence label when it has one. |
+| **C** | Opinion, trade commentary or promotional copy — halfwheel commentary and pricing talk, brand press material, the SEO sections of 雪茄 123 | Attribute explicitly ("reportedly", "the retailer claims"). Never state as fact. |
+| **D** | Anything not tied to a retrieved page — remembered figures, plausible figures, assumed URLs | Never used, never paraphrased, never "rounded" into an answer. |
+
+Two ways grade collapses, both common:
+
+- **A number nobody fetched is grade D.** If no page was retrieved for it this
+  session, it does not exist. Saying it in confident prose does not retrieve it.
+- **A URL answering 200 upgrades nothing.** Fetch the page, then grade. See the
+  traps below for the case where 200 and absence are identical.
+
+## Conflicting sources / 冲突取舍
+
+Sources disagree often, and the disagreement is usually the interesting part.
+Never resolve it by blending. **Averaging two incompatible figures invents a third
+figure that no source supports.**
+
+1. **Different grades — take the higher.** The lower one is discarded, not carried
+   alongside as balance.
+2. **Same grade — give both**, each with its source and its number, and say they
+   disagree. Still no midpoint.
+3. **When the conflict drives a decision** (a hazard threshold, a discard call),
+   act on the more conservative number and say plainly which source it came from
+   and why it governs. Presenting both and letting the reader guess is not a
+   decision.
+4. **If only one of the two affects the answer**, say so and drop the noise.
+
+Worked example already encoded in this skill: beetle risk is given as about 22°C
+(72°F) by Cigar Capitol and 24°C by private notes. Both are printed, sources
+attached, no midpoint offered. Where the question is what to do, the lower
+threshold governs, because acting early costs little and acting late costs a
+collection.
+
+## Answering with receipts / 回答必须留痕
+
+Any substantive number, term or criterion traced to a source states four things:
+
+1. **The source** — site name and the field or entry it came from
+2. **The grade** — A, B or C
+3. **When it was retrieved**, or that it came from the offline cache
+4. **Its limits** — a field absent from that source is reported as "not recorded
+   there", never as absent, never as low
+
+Forbidden substitutes for attribution: "generally accepted", "widely considered",
+"industry standard". If it cannot be sourced, it belongs in grade D and does not
+get said.
+
+Lookup confidence returned by the scripts is not decoration — it goes in the
+answer. A `review` result that reaches the user described as settled has had its
+uncertainty laundered away.
+
+## Known traps / 已知坑
+
+Each of these was found by fetching and comparing real pages, not by reading
+documentation. They are listed because guessing avoids none of them.
+
+**A Cigar Capitol URL returning 200 does not mean the term exists.** A slug that
+is not in the dictionary falls back to the homepage and answers 200. Two tells,
+and use the first one:
+
+1. **The page title is `Cigar Capitol — The archive of cigar civilisation`** —
+   the site's own homepage title. Real entries answer with a title of the form
+   `Dry-Boxing · Cigar Capitol`. This is the reliable test.
+2. **The response is byte-identical to what any invented slug returns.** Compare
+   against something known-absent, e.g. `zzz-not-a-term`.
+
+Do not gate on an exact byte count. The homepage is around 111 KB but its size
+drifts as its content is edited, so a hardcoded length fails later for no visible
+reason. Compare against a fresh control request instead. Confirm every term
+against `capitol-index.md` before citing it.
+
+**Missing ratings on Cigar Century are not low ratings.** Many records carry no
+score. Absence of a score carries no information.
+
+**A missing Cigar Aficionado URL means it was not found.** There is no local
+index of their IDs. When no URL is located, say it was not found rather than
+supplying one that looks right.
+
+**`status: blocked` from halfwheel is terminal.** The Cloudflare challenge blocks
+all script traffic. Do not retry, do not route through `/?s=`. Use the built-in
+fetch tool with the date-archive URLs listed above.
+
+**雪茄 123 mixes SEO filler into the same directory** as its reference material.
+Titles of the form "XX 雪茄 2026 价格走势分析" or "抖音热销爆款榜单" are not
+reference content.
+
+**A vitola name does not predict dimensions.** Corona and Petit Corona both fail
+outright against the bands you would infer from their names. Size is looked up or
+measured, never derived from the name — which is why `selection-guide.md` keys off
+length × ring gauge rather than vitola labels.
