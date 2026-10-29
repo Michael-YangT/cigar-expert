@@ -24,12 +24,20 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 SITEMAP_INDEX = "https://www.cigarcentury.com/sitemap.xml"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 TIMEOUT = 60
+
+# A single SSL handshake timeout used to abort the whole build, which is the
+# worst possible first-run experience: it looks like the skill is broken rather
+# than the network being briefly unhappy. One retry fixes it.
+ATTEMPTS = 2
+RETRY_DELAY = 3
 
 # Only the English side of the catalogue is indexed; the Spanish mirror duplicates it.
 BRAND_RE = re.compile(r"<loc>([^<]*/en/brand/[^<]*)</loc>")
@@ -38,9 +46,24 @@ SITEMAP_RE = re.compile(r"<loc>([^<]*\.xml)</loc>")
 
 
 def fetch(url: str) -> str:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+    last: Exception | None = None
+    for attempt in range(1, ATTEMPTS + 1):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+                return resp.read().decode("utf-8", errors="replace")
+        except OSError as exc:  # URLError and TimeoutError both live under here
+            last = exc
+            if attempt == ATTEMPTS:
+                break
+            print(f"  {exc} - retrying once", file=sys.stderr)
+            time.sleep(RETRY_DELAY)
+    assert last is not None
+    # Normalised so the caller's network branch catches it rather than the
+    # write branch, which would blame the disk for a network problem.
+    if isinstance(last, urllib.error.URLError):
+        raise last
+    raise urllib.error.URLError(last)
 
 
 def last_part(url: str) -> str:
@@ -61,7 +84,7 @@ def build(outdir: Path, cache: Path, force: bool) -> tuple[int, int]:
     outdir.mkdir(parents=True, exist_ok=True)
 
     if force or not cache.exists():
-        print(f"fetching sitemap index ...", file=sys.stderr)
+        print("fetching sitemap index ...", file=sys.stderr)
         index_xml = fetch(SITEMAP_INDEX)
         cache.write_text(index_xml, encoding="utf-8")
     else:
