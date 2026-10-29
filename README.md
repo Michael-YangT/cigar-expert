@@ -19,7 +19,7 @@ collection data. See [Privacy](#隐私设计).
 | 这支茄什么参数？ | 输出尺寸、环径、强度、茄衣/茄套/茄芯、风味标签、评分，附来源链接 |
 | 这支我不认识、没法确定型号 | 三段式比对资料库，给候选 + 置信度；不确定就明说不确定 |
 | 国产茄（长城/黄鹤楼/王冠/泰山）什么型号？ | 查雪茄 123 中文库，按长度 + 环径给候选，中英双语名 |
-| 这支在权威评分里多少分？ | 引 Cigar Aficionado 百分制与历次复评，**剔除价格** |
+| 这支在权威评分里多少分？ | 引 Cigar Aficionado 百分制与历次复评，`price_reference` 只给站点公布原值 |
 | 最近出了什么新款？有没有我手里这支的信息？ | 查 halfwheel 动态与日期归档 |
 | 长白毛是发霉还是开花？ | 引 Cigar Capitol 的判据，离线可答 |
 | 这盒能不能和其他茄放一起？ | 按茄衣判气味组和湿度目标 |
@@ -68,7 +68,7 @@ python3 scripts/lookup.py --url "https://www.cigarcentury.com/en/cigars/oliva-se
 python3 scripts/fetch_domestic.py --find 长城
 python3 scripts/fetch_domestic.py --detail https://www.xuejia123.com/baike1/guochan/changcheng/132/91932.html
 
-# 查权威百分制评分（价格会被剔除）
+# 查权威百分制评分（价格只转述站点原值，不推算区间）
 python3 scripts/fetch_rating.py --find "Tatuaje Cabinet Tainos"     # 先拿到检索式
 python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/27174/name/tatuaje-cabinet-tainos-double-corona
 
@@ -165,7 +165,7 @@ If you fork this, keep that boundary. Do not commit your own ledger path.
 
 这个 Skill 不做以下事情：
 
-- **不提供购买建议、商家或链接** — `lookup.py` 与 `fetch_rating.py` 都主动剔除价格字段；halfwheel 的官方定价同样不转述
+- **不提供商家、链接或购买引导** — `price_reference` 只转述站点公布的数字，不推算区间、不换算币种、不指向任何卖家
 - **不爬取** — Cigar Aficionado 明确禁止脚本访问其搜索；halfwheel 有风控。按仓库规定的单页 / 网页工具方式取用
 - **不出具真伪结论** — 只给判据和可观察检查
 - **不写你的台账** — 只出建议草稿，由你决定
@@ -186,7 +186,7 @@ cigar-skill/
 │   ├── build_index.py                    从 sitemap 生成 Cigar Century 索引
 │   ├── lookup.py                         三段式查型号 + 抓参数
 │   ├── fetch_domestic.py                 雪茄 123：中文库索引 / 检索 / 详情
-│   ├── fetch_rating.py                   Cigar Aficionado：单页评分（剔价格）
+│   ├── fetch_rating.py                   Cigar Aficionado：单页评分（价格原值转述）
 │   ├── fetch_news.py                     halfwheel：新品，遇拦截则给出取用路径
 │   └── fetch_capitol.py                  刷新离线术语库
 ├── references/
@@ -201,6 +201,8 @@ cigar-skill/
 │   ├── matching-rules.md              匹配铁律与失败案例
 │   ├── data-sources.md                七站评估
 │   ├── flavour-groups.md              气味组分盒
+│   ├── defect-diagnosis.md           燃烧与结构故障：斜烧、隧道、堵塞
+│   ├── drink-pairing.md              酒食搭配：按强度与风味组
 │   └── personal-ledger.example.md     个人层模板
 └── .gitignore
 ```
