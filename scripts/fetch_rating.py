@@ -14,9 +14,11 @@ The 100-point score is the industry's most cited number, and unlike
 community ratings it comes from blind panel tastings. Use it to corroborate,
 never as the only evidence.
 
-**Price is stripped from the output on purpose.** This skill gives no pricing,
-retail or purchasing guidance, and a script that quietly forwards the MSRP would
-be a back door around that rule. If you want the price, this is the wrong tool.
+**Price is quoted verbatim or not at all.** `price_reference` carries the figure
+the source site published, with no range derived from it, no currency conversion
+and no seller attached. This skill gives no retail or purchasing guidance, so a
+number that arrives without a source site behind it is not a price, it is a guess.
+If you need a merchant, this is the wrong tool.
 
 Because there is no index to query, the two steps are separated so neither can be
 skipped: `--find` prints the search and the follow-up command, `--url` reads the
@@ -56,8 +58,9 @@ DETAIL_KEYS = [
     "Country",
     "Issue",
 ]
-# Dropped rather than parsed: commercial data, out of scope for this skill.
-DROP_KEYS = {"Price"}
+# Reported separately from `details`, verbatim, as the site's published figure.
+# Never converted, never banded into a range, and never paired with a seller.
+PRICE_KEYS = ("Price",)
 
 CACHE_DIR = ROOT / "data" / "ratings"
 
@@ -134,6 +137,18 @@ def parse(page: str) -> dict:
                     details[key] = lines[j]
                 break
 
+    price: dict[str, str] = {}
+    for key in PRICE_KEYS:
+        label = key + ":"
+        for i, line in enumerate(lines):
+            if line == label:
+                j = i + 1
+                while j < len(lines) and not lines[j].strip():
+                    j += 1
+                if j < len(lines):
+                    price[key] = lines[j]
+                break
+
     tasting = ""
     m_idx = None
     for i, line in enumerate(lines):
@@ -177,10 +192,14 @@ def parse(page: str) -> dict:
         "strength": header.get("STRENGTH"),
         "reviewed_issue": issue,
         "details": details,
+        "price_reference": price or None,
         "tasting_note": tasting,
         "other_reviews": repeats,
-        # Stated explicitly so nobody re-adds it by accident.
-        "notes": "Price intentionally omitted - this skill gives no commercial guidance.",
+        "notes": (
+            "price_reference is the figure the source site published, quoted verbatim. "
+            "It is not a price band, not a currency conversion, and not a place to buy - "
+            "quote it as a published reference with the retrieval date, never as guidance."
+        ),
     }
 
 
