@@ -78,6 +78,12 @@ FIELD_RE = re.compile(
 )
 STRENGTH_RE = re.compile(r'<div class="nombre">\s*Strength\s*</div>.*?title="(?P<val>[^"]*)"', re.S)
 TITLE_RE = re.compile(r"<h1[^>]*>(?P<t>.*?)</h1>", re.S | re.I)
+# The meta description carries the price the site publishes, e.g.
+# "Oliva - Serie V Melanio - Robusto - Average Price USD$ 12.00 - Rating 91.0%."
+META_PRICE_RE = re.compile(
+    r'Average Price\s+(?P<currency>[A-Z]{3})\$?\s*(?P<amount>\d[\d.,]*)',
+    re.I,
+)
 
 
 def slugify(text: str) -> str:
@@ -259,13 +265,21 @@ def parse_detail(html_text: str) -> dict:
     for key in list(spec):
         spec[key] = re.sub(r"\s*View all\s*$", "", spec[key]).strip()
 
-    # Price is deliberately not surfaced. The accompanying skill guidance keeps
-    # this tool away from purchasing advice, so monetary fields stay out of the
-    # payload even when the page carries them.
+    # Price is lifted out of the spec table and quoted on its own, so the spec
+    # stays comparable across cigars while the number keeps its provenance.
+    # Nothing is derived from it: no range, no conversion, no seller.
+    price = {}
     for priced in ("Average Price", "MSRP", "Price"):
-        spec.pop(priced, None)
+        if priced in spec:
+            price[priced] = spec.pop(priced)
 
-    return {"title": title, "spec": spec}
+    # Cigar Century states the price in the meta description rather than the spec
+    # table, so the table above is usually empty. Take it from there verbatim.
+    meta = META_PRICE_RE.search(html_text)
+    if meta and "Average Price" not in price:
+        price["Average Price"] = f"{meta.group('currency')} {meta.group('amount')}"
+
+    return {"title": title, "spec": spec, "price_reference": price or None}
 
 
 def fetch_detail(url: str) -> dict:
