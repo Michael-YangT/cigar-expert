@@ -43,9 +43,12 @@ Then build the catalogue index (takes seconds):
 
 ```bash
 cd ~/.workbuddy/skills/cigar-expert
+python3 scripts/check_environment.py               # 期望 partial，属正常
 python3 scripts/build_index.py       # Cigar Century 型号库，约 7 秒
 python3 scripts/fetch_domestic.py --build-index   # 雪茄 123 中文库，约 80 秒
 ```
+
+只装不建索引也能用：养护、术语、气味组三块走 `references/` 离线缓存，`check_environment.py` 会报 `partial` 并点出缺哪一份。**`partial` 不是错误**，但索引缺失时不许把查不到说成「这支不存在」。
 
 That writes `data/brands.txt` (4,757 brands) and `data/cigars.txt` (19,191
 non-Chinese models), plus `data/xuejia-index.tsv` (1,767 Chinese-facing pages:
@@ -70,6 +73,7 @@ python3 scripts/fetch_rating.py --find "Tatuaje Cabinet Tainos"     # 先拿到�
 python3 scripts/fetch_rating.py --url https://www.cigaraficionado.com/ratings/27174/name/tatuaje-cabinet-tainos-double-corona
 
 # 检查环境
+python3 scripts/check_environment.py
 python3 scripts/lookup.py --check
 ```
 
@@ -176,7 +180,9 @@ Smoking harms health. Reference material for adults only.
 ```
 cigar-skill/
 ├── SKILL.md                              主入口
+├── skill-dependencies.json               依赖与功能降级清单
 ├── scripts/
+│   ├── check_environment.py              环境自检：ready / partial / needs_setup
 │   ├── build_index.py                    从 sitemap 生成 Cigar Century 索引
 │   ├── lookup.py                         三段式查型号 + 抓参数
 │   ├── fetch_domestic.py                 雪茄 123：中文库索引 / 检索 / 详情
@@ -191,6 +197,7 @@ cigar-skill/
 │   ├── production-curing.md           36 · 发酵与生产（含 Plume vs Mold）
 │   ├── anatomy.md                     36 · 结构：茄衣/茄套/茄芯
 │   ├── flavour-tasting.md             20 · 强度、口感、余味
+│   ├── setup-guide.md                 环境要求、五个站点、降级与恢复
 │   ├── matching-rules.md              匹配铁律与失败案例
 │   ├── data-sources.md                七站评估
 │   ├── flavour-groups.md              气味组分盒

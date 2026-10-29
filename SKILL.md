@@ -1,7 +1,12 @@
 ---
 name: cigar-expert
-version: 1.0.1
+version: 1.1.0
+display_name: 雪茄顾问
+display_name_en: Cigar Expert
+agent_created: true
 description: This skill should be used when the user asks about premium cigars — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; or choosing which cigar to smoke now. Triggers include queries in Chinese such as 雪茄, 这支茄, 环径, 强度, 茄衣, 怎么养, 长白毛, 串味, 怎么搭配. It answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or price guidance.
+description_zh: 查雪茄型号参数，含尺寸、环径、强度与茄衣茄套茄芯；识别认不准或标不全的型号并给出候选与置信度；解释养护科学，含湿度、开花与发霉之别、虫害风险、醒茄与老化窗口；按茄衣气味组分盒；引用权威百分制评分并剔除价格。中文作答，保留英文原名，只引参考站，不给购买建议。
+description_en: Look up a cigar's vitola, ring gauge, strength and leaf components; identify an unknown or partially labelled cigar against a brand catalogue; explain storage science such as humidity, plume versus mould, beetle risk and aging windows; assign cigars to cross-flavour storage groups; and cite published 100-point scores. Answers in Chinese while keeping the English name alongside. Reference sites only, with no purchasing or pricing guidance.
 ---
 
 # Cigar Expert / 雪茄顾问
@@ -16,6 +21,27 @@ Everything here was validated against real data before it was written. The
 matching rules in `references/matching-rules.md` exist because a naive search
 was tried first and produced wrong answers on three separate kinds of input.
 Do not replace them with a simpler search.
+
+## Before the first answer
+
+```
+python3 scripts/check_environment.py
+```
+
+It reports one of three states and exits non-zero only when nothing can run:
+
+| State | Meaning | What to do |
+|---|---|---|
+| `ready` | Indexes and offline references present | Answer normally |
+| `partial` | Offline references present, catalogue index missing | Storage, terminology and flavour-group questions still work; run `python3 scripts/build_index.py` before any lookup |
+| `needs_setup` | Python too old, or `scripts/` / `references/` incomplete | Stop and follow `references/setup-guide.md` |
+
+`partial` is the common state on a fresh clone, and it is not an error. Do not
+report a lookup failure as "this cigar does not exist" while the index is
+missing — say the catalogue is not built yet and offer the one command.
+
+`references/setup-guide.md` carries the five reference domains, what each source
+needs, and what still works when a source is unreachable.
 
 ## Output language
 

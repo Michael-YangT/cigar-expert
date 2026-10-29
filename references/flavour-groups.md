@@ -82,9 +82,11 @@ Two cautions:
   lands in Dark fermented and another in Neutral.
 - Box-pressed and figurado shapes say nothing about group. Only the leaf matters.
 
-`references/terroir.md` explains why each wrapper behaves this way — San Andrés
-ferments dark while keeping cocoa sweetness, some Nicaraguan valleys give black
-pepper and dense grey ash, Connecticut Shade is restrained by design.
+Why each wrapper behaves this way is a terroir question rather than a storage
+one — San Andrés ferments dark while keeping cocoa sweetness, some Nicaraguan
+valleys give black pepper and dense grey ash, Connecticut Shade is restrained by
+design. What matters here is only that the leaf, not the shape or the line name,
+decides the group.
 
 ## Cross-flavour mechanics
 

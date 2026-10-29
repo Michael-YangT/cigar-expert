@@ -1,0 +1,272 @@
+{
+  "schema_version": "1",
+  "capabilities": [
+    "catalogue lookup by brand and model",
+    "Chinese domestic lookup",
+    "storage and terminology answers",
+    "flavour-group assignment",
+    "published 100-point score retrieval",
+    "new-release lookup"
+  ],
+  "dependencies": [
+    {
+      "id": "python-runtime",
+      "type": "runtime",
+      "required": true,
+      "auth_type": "none",
+      "capabilities": [
+        "catalogue lookup by brand and model",
+        "Chinese domestic lookup",
+        "published 100-point score retrieval",
+        "new-release lookup"
+      ],
+      "checks": [
+        {
+          "id": "python-version",
+          "type": "python",
+          "required": true,
+          "min_version": "3.8"
+        },
+        {
+          "id": "scripts-present",
+          "type": "file",
+          "required": true,
+          "path": "scripts/lookup.py"
+        },
+        {
+          "id": "offline-references",
+          "type": "file",
+          "required": true,
+          "path": "references/capitol-index.md"
+        }
+      ],
+      "setup": {
+        "official_home_url": "https://www.python.org/",
+        "official_docs_url": "https://docs.python.org/3/",
+        "download_url": "https://www.python.org/downloads/",
+        "steps": [
+          "Confirm the interpreter with python3 --version, expecting 3.8 or newer.",
+          "Install nothing else. All six scripts import only the standard library.",
+          "Run python3 scripts/check_environment.py and read the status field."
+        ],
+        "verify": "python3 scripts/check_environment.py exits 0 and reports ready or partial",
+        "security": "No package installation is required, and none should be added to satisfy this skill. The scripts are stdlib-only so that a clone runs as-is; a third-party dependency would be a supply-chain surface with no benefit.",
+        "verified_at": "2026-10-29",
+        "applies_to_version": "1.1.0"
+      },
+      "degradation": [
+        {
+          "capability": "catalogue lookup by brand and model",
+          "trigger": "Python missing or older than 3.8",
+          "fallback": "Answer from the cached references only: storage-terms.md, production-curing.md, terroir.md, flavour-groups.md.",
+          "user_input": "none",
+          "limitations": "No vitola, ring gauge or leaf breakdown can be produced.",
+          "evidence_label": "推断",
+          "recovery": "Install Python 3.8 or newer from the official site, then rerun scripts/check_environment.py.",
+          "stop_condition": "Stop all lookup requests. Do not describe a cigar from memory."
+        },
+        {
+          "capability": "Chinese domestic lookup",
+          "trigger": "Python missing or older than 3.8",
+          "fallback": "None. The Chinese index is only readable through fetch_domestic.py.",
+          "user_input": "none",
+          "limitations": "长城, 黄鹤楼, 王冠 and 泰山 cannot be resolved.",
+          "evidence_label": "推断",
+          "recovery": "Install Python, rebuild the index, then retry.",
+          "stop_condition": "Say the lookup tooling is unavailable rather than naming a domestic model."
+        },
+        {
+          "capability": "published 100-point score retrieval",
+          "trigger": "Python missing or older than 3.8",
+          "fallback": "None. fetch_rating.py is the only reader for these pages.",
+          "user_input": "none",
+          "limitations": "No published score can be retrieved.",
+          "evidence_label": "推断",
+          "recovery": "Install Python, then rerun fetch_rating.py --find.",
+          "stop_condition": "Report no score available. Never estimate one."
+        },
+        {
+          "capability": "new-release lookup",
+          "trigger": "Python missing or older than 3.8",
+          "fallback": "Read the halfwheel date archive directly with the built-in web-fetch tool.",
+          "user_input": "the date range of interest",
+          "limitations": "No script-side detection of the Cloudflare challenge, so a 403 may be mistaken for an empty page.",
+          "evidence_label": "推断",
+          "recovery": "Install Python and use fetch_news.py, which explains the block instead of guessing.",
+          "stop_condition": "Do not report 'no new releases' from a failed fetch."
+        }
+      ]
+    },
+    {
+      "id": "reference-sites",
+      "type": "network",
+      "required": false,
+      "auth_type": "none",
+      "capabilities": [
+        "catalogue lookup by brand and model",
+        "Chinese domestic lookup",
+        "published 100-point score retrieval",
+        "new-release lookup"
+      ],
+      "checks": [
+        {
+          "id": "cigarcentury",
+          "type": "url",
+          "required": false,
+          "url": "https://www.cigarcentury.com/",
+          "method": "HEAD",
+          "expected_status": [200]
+        },
+        {
+          "id": "cigarcapitol",
+          "type": "url",
+          "required": false,
+          "url": "https://cigarcapitol.com/",
+          "method": "HEAD",
+          "expected_status": [200]
+        },
+        {
+          "id": "cigaraficionado",
+          "type": "url",
+          "required": false,
+          "url": "https://www.cigaraficionado.com/ratings",
+          "method": "HEAD",
+          "expected_status": [200]
+        },
+        {
+          "id": "xuejia123",
+          "type": "url",
+          "required": false,
+          "url": "https://www.xuejia123.com/",
+          "method": "HEAD",
+          "expected_status": [200]
+        },
+        {
+          "id": "halfwheel",
+          "type": "url",
+          "required": false,
+          "url": "https://halfwheel.com/",
+          "method": "HEAD",
+          "expected_status": [200, 403]
+        }
+      ],
+      "setup": {
+        "official_home_url": "https://www.cigarcentury.com/",
+        "official_docs_url": "https://www.cigarcentury.com/sitemap.xml",
+        "steps": [
+          "No account, key or token exists for any of the five sites, so there is nothing to configure.",
+          "Confirm reachability with python3 scripts/check_environment.py --online.",
+          "Treat 403 from halfwheel as normal: it blocks scripted access deliberately."
+        ],
+        "verify": "check_environment.py --online reports HTTP 200 for Cigar Century and 200 or 403 for halfwheel",
+        "security": "Only five fixed hosts are contacted, all over HTTPS and all read-only. No credential is sent because none exists, and no retailer is ever contacted.",
+        "verified_at": "2026-10-29",
+        "applies_to_version": "1.1.0"
+      },
+      "degradation": [
+        {
+          "capability": "catalogue lookup by brand and model",
+          "trigger": "Cigar Century unreachable",
+          "fallback": "lookup.py exits 2 with the reason. Use the Chinese index or cached references instead.",
+          "user_input": "none",
+          "limitations": "Non-Chinese models cannot be confirmed; cached slugs resolve but their spec sheets cannot be refetched.",
+          "evidence_label": "未验证",
+          "recovery": "Retry later. build_index.py already retries a failed fetch once.",
+          "stop_condition": "Never substitute a similarly named cigar. Return no match and say the source is down."
+        },
+        {
+          "capability": "Chinese domestic lookup",
+          "trigger": "雪茄 123 unreachable",
+          "fallback": "None. No other source covers the domestic brands.",
+          "user_input": "none",
+          "limitations": "Domestic models cannot be resolved at all.",
+          "evidence_label": "未验证",
+          "recovery": "Retry later, or rebuild the offline index when the site returns.",
+          "stop_condition": "Say the source is unreachable. Do not answer domestic questions from memory."
+        },
+        {
+          "capability": "published 100-point score retrieval",
+          "trigger": "No rating page found, or the page cannot be read",
+          "fallback": "Quote the tasting block from a 雪茄 123 detail page, labelled as a tasting note rather than a blind-panel score.",
+          "user_input": "the exact brand and model, so the search can be retried",
+          "limitations": "A score that was never published cannot be found. No estimate, no average.",
+          "evidence_label": "部分验证",
+          "recovery": "Rerun fetch_rating.py --find to regenerate the query, then search again.",
+          "stop_condition": "Report no published rating. Never present a number that did not come from a page."
+        },
+        {
+          "capability": "new-release lookup",
+          "trigger": "Always, from a script: halfwheel blocks scripted access",
+          "fallback": "fetch_news.py returns status blocked with date-archive URLs; read https://halfwheel.com/date/YYYY/MM/DD/ with the built-in web-fetch tool.",
+          "user_input": "none",
+          "limitations": "No automated feed; each check costs one page fetch.",
+          "evidence_label": "已验证",
+          "recovery": "Nothing to recover: the blocked response is the documented path.",
+          "stop_condition": "Never retry in a loop, and never route the site search through a script."
+        }
+      ]
+    }
+  ],
+  "functional_degradations": [
+    {
+      "capability": "catalogue lookup by brand and model",
+      "trigger": "data/brands.txt missing, the normal state on a fresh clone because data/ is gitignored",
+      "fallback": "check_environment.py reports partial and names the missing index; storage, terminology and flavour-group answers continue from cached references.",
+      "user_input": "none",
+      "limitations": "No lookup until the index is built. This is not the same as the cigar not existing.",
+      "evidence_label": "已验证",
+      "recovery": "Run python3 scripts/build_index.py, about 10 s.",
+      "stop_condition": "Do not report a missing match while the index is absent; say the catalogue is not built."
+    },
+    {
+      "capability": "Chinese domestic lookup",
+      "trigger": "data/xuejia-index.tsv missing",
+      "fallback": "check_environment.py reports partial; every other function keeps working.",
+      "user_input": "none",
+      "limitations": "长城, 黄鹤楼, 王冠 and 泰山 cannot be resolved.",
+      "evidence_label": "已验证",
+      "recovery": "Run python3 scripts/fetch_domestic.py --build-index, about 80 s.",
+      "stop_condition": "Do not answer a domestic question from a foreign catalogue; none of these models are listed there."
+    },
+    {
+      "capability": "storage and terminology answers",
+      "trigger": "no network at all",
+      "fallback": "All 329 Cigar Capitol entries are cached under references/, so these answers are unaffected.",
+      "user_input": "none",
+      "limitations": "Terms outside the six cached categories need one live fetch and are unavailable offline.",
+      "evidence_label": "已验证",
+      "recovery": "Reconnect and fetch the single slug from https://cigarcapitol.com/dictionary/<slug>/.",
+      "stop_condition": "If a term is neither cached nor in capitol-index.md, say it is not covered rather than paraphrasing something else."
+    },
+    {
+      "capability": "flavour-group assignment",
+      "trigger": "the Wrapper value is missing or ambiguous on the record being classified",
+      "fallback": "Show the wrapper-to-group table from flavour-groups.md and ask the user to confirm the wrapper, or to pick between the two candidate groups.",
+      "user_input": "the Wrapper field, or a photo of the band and cellophane",
+      "limitations": "Group and humidity cannot be assigned from the line name alone: a maduro in the name does not guarantee a maduro wrapper.",
+      "evidence_label": "部分验证",
+      "recovery": "Once the wrapper is known, re-map it and continue.",
+      "stop_condition": "Never place a cigar in a group by guessing its wrapper; the humidity that follows the group is a storage instruction, not a label."
+    },
+    {
+      "capability": "published 100-point score retrieval",
+      "trigger": "the web search returns no Cigar Aficionado rating page",
+      "fallback": "Quote a 雪茄 123 tasting block, clearly labelled as a tasting note and not a blind-panel score.",
+      "user_input": "the exact brand and model",
+      "limitations": "Absence of a published score is common for new and domestic cigars; it does not mean the cigar is unreviewed elsewhere.",
+      "evidence_label": "部分验证",
+      "recovery": "Rerun fetch_rating.py --find with the confirmed model name and search again.",
+      "stop_condition": "Say no published rating was found. Do not estimate, average or recall a score."
+    },
+    {
+      "capability": "new-release lookup",
+      "trigger": "fetch_news.py reports status blocked",
+      "fallback": "Read the date archive https://halfwheel.com/date/YYYY/MM/DD/ with the built-in web-fetch tool, starting from today and walking back.",
+      "user_input": "the rough date window asked about",
+      "limitations": "One page fetch per day examined; no keyword search is available because the site blocks scripted search.",
+      "evidence_label": "已验证",
+      "recovery": "No recovery needed. The blocked status carries the archive URLs by design.",
+      "stop_condition": "Never claim 'nothing new' from a blocked script response."
+    }
+  ]
+}
