@@ -1,6 +1,6 @@
 ---
 name: cigar-expert
-version: 1.1.0
+version: 1.2.0
 display_name: 雪茄顾问
 display_name_en: Cigar Expert
 agent_created: true
@@ -138,8 +138,9 @@ The page yields score, length, ring gauge, strength, wrapper/binder/filler,
 country, the panel's tasting note, and any earlier review scores for the same
 cigar — the most useful part, since a cigar's score drifts across release years.
 
-**Price is stripped before anything is printed**, because commercial guidance is
-out of scope.
+A `price_reference` field may come back with the score. Quote it as the figure
+the site published, with the retrieval date, and stop there — no range, no
+conversion, no merchant.
 
 ### New releases and news
 
@@ -202,7 +203,36 @@ on the temperature at which tobacco beetles become active: some guidance cites
 **22°C (72°F)**. Mention both figures and attribute each, then let the user
 decide which margin to work to. Never silently pick one.
 
-### Assigning a storage flavour group
+### Diagnosing a burn or structure fault
+
+`references/defect-diagnosis.md` covers canoeing, tunneling, runners, coning,
+extinguishing, plugs, tight and open draw, over-dry and over-wet, cracked
+wrappers, mould versus bloom and beetle sign.
+
+Its first question is the one that decides everything: **is this one cigar or
+several?** Several cigars failing together is a storage problem and no amount of
+technique will fix it; a single cigar failing inside a healthy box is
+construction, and the storage should be left alone. Getting that backwards is
+what makes people rebuild a working setup over one badly rolled stick.
+
+Do not diagnose from a photograph. Tunneling and canoeing look alike in a picture
+and a plug cannot be seen at all. Ask which symptom came first instead: a cigar
+that draws badly from the start is construction, one that starts well and then
+goes wrong is storage.
+
+### Pairing a drink
+
+`references/drink-pairing.md` answers pairing questions by intensity and by
+wrapper group. Its two working rules: neither side should drown the other, and
+sweetness in the glass makes a cigar read milder while dry alcohol makes it read
+harsher.
+
+Pair by body and flavour group, never by brand. Water is a legitimate answer and
+belongs between a cigar and anything else. Where a pairing goes wrong, check
+storage before blaming the drink — an over-humidified cigar tastes flat and no
+whisky fixes that.
+
+
 
 `references/flavour-groups.md` carries a seven-group scheme — five odour
 categories plus two structural groups — with the wrapper-to-group mapping and the
@@ -256,11 +286,12 @@ of all seven sites.
 
 This skill does not do these things, ever:
 
-- **No purchasing advice, retailers, links or price guidance.** Both `lookup.py`
-  and `fetch_rating.py` strip price fields for this reason — Cigar Aficionado
-  prints an MSRP on every rating page and halfwheel reports official retail
-  prices in release coverage. Quote a verdict or a spec; never a price.
-  Commercial information is out of scope entirely.
+- **No retailers, links or purchasing guidance.** `price_reference` is the only
+  commercial number this skill reports, and it is quoted **verbatim from the
+  source site** — no range derived from it, no currency converted, no seller
+  attached. Say where the figure came from and when it was retrieved. What stays
+  out is the part that points somewhere: which shop, which link, which merchant.
+  If the question is where to buy, that is out of scope.
 - **No authentication verdicts.** Provide counterfeit criteria and observable
   checks only, never a genuine/fake conclusion on a specific cigar.
 - **No writing to the ledger.** Suggestions only, marked with confidence.
@@ -284,6 +315,8 @@ Smoking harms health. This is reference material for adults.
 | `references/anatomy.md` | Explaining wrapper / binder / filler / priming fields from a spec sheet |
 | `references/flavour-tasting.md` | Strength, body and finish questions, or drink pairing calls |
 | `references/flavour-groups.md` | Assigning a storage group, deciding a humidity target |
+| `references/defect-diagnosis.md` | Any burn or draw fault — one cigar or several, and what to do |
+| `references/drink-pairing.md` | What to drink with a cigar, by intensity and flavour group |
 | `references/data-sources.md` | Assessing which site can answer something, or whether a figure is trustworthy |
 
 Two notes on cost. `capitol-index.md` holds all 329 terms with glosses and is
