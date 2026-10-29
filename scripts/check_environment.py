@@ -28,12 +28,14 @@ import argparse
 import json
 import os
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 MIN_PYTHON = (3, 8)
+INDEX_STALE_DAYS = 30
 
 SCRIPTS = [
     "build_index.py",
@@ -85,9 +87,10 @@ def probe(url: str) -> tuple[bool, str]:
         return False, str(exc)[:120]
 
 
-def build_report(online: bool) -> dict:
+def build_report(online: bool, stale_check: bool = True) -> dict:
     checks = []
     blocking = False
+    stale: list[str] = []
 
     ok = sys.version_info >= MIN_PYTHON
     checks.append(
@@ -125,9 +128,17 @@ def build_report(online: bool) -> dict:
     absent = []
     for path, label in INDEXES:
         if path.is_file():
-            checks.append(
-                {"id": path.name, "ok": True, "required": False, "detail": f"{count_lines(path)} entries - {label}"}
-            )
+            detail = f"{count_lines(path)} entries - {label}"
+            check = {"id": path.name, "ok": True, "required": False, "detail": detail}
+            if stale_check:
+                age_days = (time.time() - path.stat().st_mtime) / 86400.0
+                if age_days > INDEX_STALE_DAYS:
+                    check["ok"] = False
+                    check["detail"] = (
+                        f"built {age_days:.0f} days ago - rebuild recommended - {label}"
+                    )
+                    stale.append(path.name)
+            checks.append(check)
         else:
             absent.append(path.name)
             checks.append({"id": path.name, "ok": False, "required": False, "detail": f"not built - {label}"})
@@ -159,16 +170,20 @@ def build_report(online: bool) -> dict:
         unavailable.append("catalogue lookup by brand and model")
     if missing_domestic:
         unavailable.append("Chinese domestic lookup")
+    if stale:
+        unavailable.append("catalogue index possibly stale")
 
     if blocking:
         status = "needs_setup"
         nxt = "Read references/setup-guide.md and fix the failed check above."
-    elif absent:
+    elif absent or stale:
         status = "partial"
-        if missing_lookup:
+        if missing_lookup or any(s in ("brands.txt", "cigars.txt") for s in stale):
             nxt = "python3 scripts/build_index.py"
-        else:
+        elif missing_domestic or "xuejia-index.tsv" in stale:
             nxt = "python3 scripts/fetch_domestic.py --build-index"
+        else:
+            nxt = "python3 scripts/build_index.py"
     else:
         status = "ready"
         nxt = "Answer normally."
@@ -188,9 +203,14 @@ def build_report(online: bool) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--online", action="store_true", help="also probe the reference sites (network access)")
+    ap.add_argument(
+        "--no-stale-check",
+        action="store_true",
+        help="skip index freshness check (treat old indexes as ready)",
+    )
     args = ap.parse_args()
 
-    report = build_report(args.online)
+    report = build_report(args.online, stale_check=not args.no_stale_check)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 1 if report["status"] == "needs_setup" else 0
 

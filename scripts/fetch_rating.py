@@ -41,11 +41,16 @@ import html
 import json
 import re
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+
+# A cached rating page older than this is served as-is but flagged so the caller
+# does not treat a possibly outdated score as current.
+STALE_DAYS = 7
 
 # The exact field order used by the rating template. Each label is followed by
 # its value on the next non-empty line.
@@ -256,6 +261,17 @@ def main() -> int:
     out = parse(page)
     out["url"] = url
     out["source"] = source
+    if source == "cache":
+        age_days = (time.time() - cached.stat().st_mtime) / 86400.0
+        out["cached_days"] = round(age_days, 1)
+        if age_days > STALE_DAYS:
+            out["stale"] = True
+            out["stale_note"] = (
+                f"cached rating page is {age_days:.0f} days old; rerun with --no-cache "
+                "to refresh, or treat this score as possibly outdated."
+            )
+        else:
+            out["stale"] = False
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return 0
 

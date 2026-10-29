@@ -1,12 +1,13 @@
 ---
 name: cigar-expert
 version: 1.4.0
+last_updated: "2026-10-30"
 display_name: 雪茄顾问
 display_name_en: Cigar Expert
 agent_created: true
-description: This skill should be used when the user asks about premium cigars — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; citing a published 100-point score; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; diagnosing a burn, draw or wrapper fault such as canoeing, tunneling, a plug, repeated relights or a cracked wrapper; pairing a drink or food; or deciding which cigar to smoke now given the time available and the strength ceiling. Triggers include queries in Chinese such as 雪茄, 这支茄, 环径, 强度, 茄衣, 怎么养, 长白毛, 串味, 斜烧, 抽不动, 怎么搭配, 配什么酒, 抽哪支, 选哪支. It answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or purchasing guidance.
-description_zh: 查雪茄型号参数，含尺寸、环径、强度与茄衣茄套茄芯；识别认不准或标不全的型号并给出候选与置信度；解释养护科学，含湿度、开花与发霉之别、虫害风险、醒茄与老化窗口；按茄衣气味组分盒；诊断斜烧、隧道烧、堵塞、反复熄火、爆衣等燃烧故障；按强度与风味组给酒食搭配；并结合可用时长与强度上限决定现在抽哪支。中文作答，保留英文原名，只引参考站，不给商家与购买引导。
-description_en: Look up a cigar's vitola, ring gauge, strength and leaf components; identify an unknown or partially labelled cigar against a brand catalogue; explain storage science such as humidity, plume versus mould, beetle risk and aging windows; assign cigars to cross-flavour storage groups; cite published 100-point scores; diagnose burn, draw or wrapper faults; pair a drink or food by intensity and flavour group; and decide which cigar to smoke now given the time available. Answers in Chinese while keeping the English name alongside. Reference sites only, with no retailers or purchasing guidance.
+description: Use when the user asks about a premium cigar — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; citing a published 100-point score; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; diagnosing a burn, draw or wrapper fault such as canoeing, tunneling, a plug, repeated relights or a cracked wrapper; pairing a drink or food; or deciding which cigar to smoke now given the time available and the strength ceiling. Answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or purchasing guidance.
+description_zh: 当用户询问雪茄参数（尺寸、环径、强度、茄衣/茄套/茄芯）、识别不确定或标注不全的型号、查 100 点评分、解释养护科学、按茄衣气味组分盒、诊断燃烧故障、给酒食搭配、或按时长与强度上限决定抽哪支时使用本 skill。中文作答，保留英文原名；只引用参考站点，不给商家与购买引导。常见中文触发词：雪茄、这支茄、环径、强度、茄衣、怎么养、长白毛、串味、斜烧、抽不动、怎么搭配、配什么酒、抽哪支、选哪支。
+description_en: Use when the user asks about a premium cigar — looking up a cigar's vitola, ring gauge, strength and leaf components; identifying an unknown or partially labelled cigar against a brand catalogue; explaining storage science such as humidity, plume versus mould, beetle risk and aging windows; assigning cigars to cross-flavour storage groups; citing published 100-point scores; diagnosing burn, draw or wrapper faults; pairing a drink or food by intensity and flavour group; and deciding which cigar to smoke now given the time available. Answers in Chinese while keeping the English name alongside. Reference sites only, with no retailers or purchasing guidance.
 ---
 
 # Cigar Expert / 雪茄顾问
@@ -59,6 +60,24 @@ Trade terms such as wrapper / binder / filler also stay bilingual — write
 「茄衣（wrapper）」rather than picking one language.
 
 ## What this skill does
+
+### Trigger guide
+
+Use this table to decide whether the skill applies, and what shape the answer takes.
+
+| User asks about | The skill does | Output shape |
+|---|---|---|
+| Vitola, ring gauge, strength, wrapper/binder/filler, country, flavour profile | Three-stage match against the local index, then fetch the spec sheet | JSON candidates + `confidence` (`high` / `review` / `no_brand_match` / `no_product_match`) |
+| A partially labelled or unknown cigar | Cross-check length and ring gauge across both indexes | Candidate list with confidence, never a guess |
+| Chinese domestic brands (长城、黄鹤楼、王冠、泰山) | 雪茄 123 index via `fetch_domestic.py` | Bilingual name + dimensions + strength |
+| A published 100-point score | Cigar Aficionado page via `fetch_rating.py`, corroborated by 雪茄 123 | Score + source URL + retrieval date |
+| Storage science: humidity, plume vs mould, beetles, aging | Cached Cigar Capitol references | Offline answer with definition + usage sentence |
+| Burn/draw/wrapper fault (canoeing, tunneling, plug, relights, crack) | `scripts/diagnose.py` — `defect-diagnosis.md`: one cigar vs several first | Diagnosis steps; no photo diagnosis |
+| Drink or food pairing | `scripts/pair.py` — intensity × flavour-group matrix from `drink-pairing.md` | Pairing + exclusions; water is a valid answer |
+| Which cigar to smoke now (time ceiling, strength ceiling) | `scripts/choose.py` — state → time → strength → flavour; ledger first if configured | Shortlist + anti-recommendations |
+| New releases / limited editions | halfwheel date archive via built-in fetch | Date-archive URLs; never claim "nothing new" from a blocked script |
+
+Chinese trigger words include: 雪茄、这支茄、环径、强度、茄衣、怎么养、长白毛、串味、斜烧、抽不动、怎么搭配、配什么酒、抽哪支、选哪支.
 
 ### Looking up one cigar
 
@@ -316,6 +335,24 @@ the traps live in `references/data-sources.md`; three rules bind here.
   action — a hazard threshold, a discard call — act on the conservative number
   and say which source it came from. Blending two figures invents a third one
   that nobody published.
+### 示例：带收据的回答结构
+
+每条查型号的回答建议包含四项，缺一不可：
+
+| 要素 | 写法示例 |
+|---|---|
+| 来源 | 来源：Cigar Century — https://www.cigarcentury.com/en/cigars/oliva-serie-v-melanio-robusto |
+| 等级 | 等级：A / 置信度：high（或 `review`，并列出缺失的尺寸或 token） |
+| 检索时间 | 检索时间：2026-10-30；现场抓取，或“缓存，{N} 天前” |
+| 局限 | 局限：仅引用参考站，非零售报价，不构成购买建议；不作真伪鉴定。 |
+
+示例：
+
+> 来源：Cigar Century（Arturo Fuente Hemingway Classic，Perfecto，Cameroon 茄衣，长 102 mm，环径 48）
+> 等级：A，置信度 high
+> 检索时间：2026-10-30，现场抓取
+> 局限：只引参考站，不给商家与购买引导；不作真伪鉴定。
+
 - **Answers carry receipts.** Source and field, grade (A/B/C), when retrieved or
   that it is cached, and what the source does *not* cover. A field absent from a
   source is "not recorded there", never absent and never low. Script confidence

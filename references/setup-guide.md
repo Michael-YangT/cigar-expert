@@ -101,3 +101,29 @@ python3 scripts/lookup.py --brand "奥利瓦 Oliva" --model "Serie V Melanio Rob
 
 A working install resolves the last command to `oliva-serie-v-melanio-robusto`
 with confidence `high`.
+
+## CI / 回归检查清单
+
+每次克隆、拉取更新或修改脚本后，按顺序运行：
+
+```bash
+# 1. 环境自检（本地 + 网络）
+python3 scripts/check_environment.py               # 期望 ready 或 partial
+python3 scripts/check_environment.py --online      # 五站可达性：Cigar Century 200，halfwheel 200 或 403
+
+# 2. 索引完整性
+python3 scripts/lookup.py --check                  # 两个索引均报 ok
+
+# 3. 单元测试（stdlib-only，无网络）
+python3 -m unittest tests.test_lookup              # 全部通过
+
+# 4. 端到端一次查型号
+python3 scripts/lookup.py --brand "奥利瓦 Oliva" --model "Serie V Melanio Robusto"   # 期望 confidence: high
+
+# 5. 索引时效性（data/ 是 gitignored 的派生数据，会过期）
+# 若 data/brands.txt / cigars.txt 修改时间超过 30 天，执行重建：
+#   python3 scripts/build_index.py
+#   python3 scripts/fetch_domestic.py --build-index
+```
+
+任何一步失败，先解决当前步骤再进入下一步；不要在索引缺失或过期时直接断言“这支雪茄不存在”。
