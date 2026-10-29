@@ -3,21 +3,29 @@
 Diagnosing a cigar that is burning wrong or drawing wrong. Read this before
 answering any question of the form "my cigar is doing X, why".
 
-The terms and their causes are Cigar Capitol entries; the handling steps are
-practical guidance and are marked as such. Where a source disagrees, both figures
-are given — never pick one silently.
+Where a term has a Cigar Capitol entry it is linked, and the cause attribution
+follows that entry. Sections without a link are observation and experience, not
+cited definitions. Handling steps are practical guidance throughout. Where two
+sources disagree, both figures are given — never pick one silently.
 
 ## First split: storage cause or construction cause
 
 This is the fork that decides everything downstream, and it is answerable from
 one question: **is it one cigar or several?**
 
-| 观察 | 判为 | 处置方向 |
+| Observation | Reads as | What to change |
 |---|---|---|
-| 多支、不同品牌、同期都出问题 | 储存（湿度/温度） | 改环境，不要改手法 |
-| 同一盒内多支出同症状 | 该盒/该批 | 整盒隔离并检查湿度 |
-| 单支出问题，同盒其他正常 | 卷制（construction） | 单支处置，环境不用动 |
-| 每次都出，但只在这一款 | 该型号特性 | 换尺寸或降低湿度再抽 |
+| Several cigars, different brands, all at once | storage (humidity / temperature) | the environment, not the technique |
+| Several from the same box, same symptom | that box or batch | isolate the box and check its RH |
+| One cigar, the rest of the box is fine | construction | treat the single cigar; leave the environment alone |
+| Always this model, never others | a characteristic of that vitola | change size, or smoke it drier |
+
+The third row is the one applied wrongly. "The rest of the box is fine" requires
+evidence — having smoked others from it, at the measured RH of that container.
+If the user has only smoked this one cigar, the honest answer is that storage
+cannot be ruled out yet: check the container's actual RH against its group's
+target first, then decide. An over-humidified box also produces its first bad
+cigar before the rest follow.
 
 Getting this wrong is expensive: people rebuild their whole storage setup over a
 single badly rolled cigar, and just as often keep re-lighting an over-humidified
@@ -47,14 +55,16 @@ over-humidified storage.
   classic wet-cigar signature — a tight draw and flat flavour usually come with it.
 - **Handling** *(practical)*: purge the cigar gently to push air through, then
   relight. It will not fully recover; the fix is drying, not technique.
-- **Prevention**: drop storage RH. Check whether the cigar came from a group whose
-  target is 62% — see `flavour-groups.md` — rather than assuming 70% is right.
+- **Prevention**: drop storage RH toward **that group's own target** in
+  `flavour-groups.md` — 62% for dark fermented, 69% for light, 65% for the rest —
+  rather than assuming 70% is right.
 
 ## Runner / 快烧线
 
-`<https://cigarcapitol.com/dictionary/runner/>`
-A point that burns faster than the tobacco around it, running up one side. Capitol
-attributes it to uneven filler density or a thin patch in binder or wrapper.
+*Observation, not a cited Cigar Capitol entry.*
+
+A point that burns faster than the tobacco around it, running up one side.
+Attributed to uneven filler density or a thin patch in binder or wrapper.
 
 - **Most likely**: construction. Unlike canoeing, a runner tends to persist.
 - **Handling** *(practical)*: touch the flame only to the slow side, repeatedly if
@@ -62,6 +72,8 @@ attributes it to uneven filler density or a thin patch in binder or wrapper.
 - **Prevention**: none at the smoking end; if a whole box runners, it is a bad box.
 
 ## Coning / 锥形烧
+
+*Observation, not a cited Cigar Capitol entry.*
 
 The centre burns ahead of the ring, leaving a cone. Common in figurados and in
 cigars whose bunch is deliberately looser at the foot.
@@ -72,7 +84,8 @@ cigars whose bunch is deliberately looser at the foot.
 
 ## Extinguishing / 熄火
 
-`<https://cigarcapitol.com/dictionary/relighting/>`
+*Observation, not a cited Cigar Capitol entry.*
+
 Goes out between draws.
 
 - **Most likely**: puffed too slowly, or over-humidified, or both.
@@ -117,6 +130,8 @@ Very little resistance, high smoke volume, burns hot and fast.
 
 ## Too dry / 过干
 
+`<https://cigarcapitol.com/dictionary/dry-boxing/>`
+
 - **Signs**: brittle wrapper, cracks when handled, burns hot and fast, thin
   flavour, wrapper splits at the foot.
 - **Handling** *(practical)*: raise RH **gradually** over two to four weeks. Rapid
@@ -125,6 +140,8 @@ Very little resistance, high smoke volume, burns hot and fast.
 
 ## Too wet / 过湿
 
+`<https://cigarcapitol.com/dictionary/over-humidification/>`
+
 - **Signs**: spongy feel, tight draw, tunneling, flat flavour, goes out often,
   wrapper darkens and can spot.
 - **Handling** *(practical)*: dry at the target RH for the cigar's group rather
@@ -132,6 +149,8 @@ Very little resistance, high smoke volume, burns hot and fast.
 - **Prevention**: sort by group and set RH per group — see `flavour-groups.md`.
 
 ## Cracked wrapper / 爆衣
+
+*Observation, not a cited Cigar Capitol entry.*
 
 - **Most likely**: handled dry, or re-humidified too fast, or cold-to-warm
   transition with condensation.
@@ -142,6 +161,7 @@ Very little resistance, high smoke volume, burns hot and fast.
 
 ## Mold vs bloom / 发霉与开花
 
+`<https://cigarcapitol.com/dictionary/plume-vs-mold/>`
 The single most-asked storage question. **Plume brushes off cleanly and leaves no
 mark; mould is raised, patchy, stains the leaf and smells musty.** Full entry and
 reasoning: `production-curing.md`.
@@ -153,6 +173,7 @@ reasoning: `production-curing.md`.
 
 ## Beetle risk / 虫害
 
+`<https://cigarcapitol.com/dictionary/cigar-beetle/>`
 Sources disagree on the activation temperature, and this must be reported as a
 disagreement rather than resolved: Cigar Capitol states eggs hatch reliably above
 roughly **22°C (72°F)**, while other guidance cites **24°C**. Give both and let

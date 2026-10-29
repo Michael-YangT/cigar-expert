@@ -1,6 +1,6 @@
 ---
 name: cigar-expert
-version: 1.3.0
+version: 1.3.1
 display_name: 雪茄顾问
 display_name_en: Cigar Expert
 agent_created: true

@@ -52,19 +52,31 @@ carries no strength data.** That means:
 
 ### Sizing by available time
 
-Ranges rather than point values, because fill, humidity and pace move these by a
-good margin. Both dimensions matter: a long thin cigar takes as long as a short
-fat one.
+**The size words do not predict size.** Measured across real catalogue pages:
+"half corona" is consistently 3" × 44–46; "petit corona" ranges 4"–5" with rings
+from 35 to 44; "robusto" spans 4" to 6". Screening candidates by name therefore
+throws away correct answers. Screen by the measured numbers instead.
 
-| Size | Length × ring | Realistic time | Note |
-|---|---|---|---|
-| Petit Corona / Half Corona | 4.0–4.5" × 40–44 | 25–35 min | The honest answer for a short break |
-| Corona | 5.5–6.0" × 42–44 | 40–55 min | Reference size; flavours read clearest |
-| Robusto | 4.9–5.5" × 48–54 | 45–65 min | Short but full-bodied; fits most evenings |
-| Toro | 6.0" × 50–54 | 60–80 min | |
-| Churchill | 7.0" × 47–50 | 80–110 min | |
-| Double Corona | 7.5–8.0" × 49–54 | 110–150 min | Requires a real commitment |
-| Panatela / Lancero | 6.0–7.5" × 34–38 | 60–90 min | Thin ring burns hot if rushed |
+| Length ↓ / Ring → | ≤ 42 | 43–46 | 47–50 | 51–54 | 55+ |
+|---|---|---|---|---|---|
+| **≤ 4"** | 20–30 | 20–30 | 25–35 | 30–40 | 35–45 |
+| **4–5"** | 30–40 | 30–45 | 35–50 | 45–60 | 50–70 |
+| **5–6"** | 40–55 | 40–55 | 45–65 | 50–70 | 60–80 |
+| **6–6.5"** | 50–70 | 55–75 | 60–80 | 65–90 | 75–100 |
+| **6.5–7.5"** | 60–85 | 65–90 | 75–105 | 80–110 | 90–130 |
+| **7.5"+** | 70–100 | 80–110 | 90–125 | 95–135 | 110–150 |
+
+These are estimates, not measurements. No published source gives smoking times,
+and pace dominates: the same cigar runs 30% shorter for a fast smoker, and a
+damp or tightly packed one runs longer. State the range and say it is an
+estimate.
+
+Both dimensions matter. A long thin cigar takes as long as a short fat one, and
+a 3-inch cigar is the only honest answer to a 25-minute window.
+
+Name examples, for locating pages — **not** for judging size: Half Corona ≈ 3" ×
+44–46 · Petit Corona ≈ 4"–5" × 35–44 · Corona / Corona Gorda ≈ 5"–6" × 42–46 ·
+Robusto ≈ 4"–6" × 50–54 · Toro ≈ 6"–6.5" × 50–52 · Churchill ≈ 7" × 50–54.
 
 Rule of thumb: **under 90 minutes available, stay at 54 ring or below and 6
 inches or below.** Anything larger will be set down half-smoked.
@@ -80,6 +92,12 @@ ligero-heavy cigar reads the resulting nausea as "cigars are not for me".
 | Occasional | Medium | Robusto, Corona Gorda |
 | Regular | Medium to full | Toro, Churchill |
 | Habitual | No ceiling | Whatever the palate asks for |
+
+The catalogue returns strength as one of exactly four strings — `Mild`, `Medium`,
+`Medium To Full`, `Full`. Quote the page's own wording rather than rounding it
+into a bracket of your own: `Medium To Full` is a real value, not an ambiguity to
+be resolved. Never upgrade a `Medium` to `Medium To Full` because the brand is
+known for strong blends.
 
 Two things commonly mistaken for strength and worth separating out:
 
