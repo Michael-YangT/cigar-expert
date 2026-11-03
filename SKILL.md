@@ -2,8 +2,8 @@
 name: cigar-expert
 description: Use when the user asks about a premium cigar — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; citing a published 100-point score; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; diagnosing a burn, draw or wrapper fault such as canoeing, tunneling, a plug, repeated relights or a cracked wrapper; pairing a drink or food; or deciding which cigar to smoke now given the time available and the strength ceiling. Answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or purchasing guidance. Common Chinese triggers include 雪茄、环径、强度、茄衣、怎么养、长白毛、串味、斜烧、抽不动、搭配、抽哪支.
 metadata:
-  version: "1.4.0"
-  last_updated: "2026-10-30"
+  version: "1.4.1"
+  last_updated: "2026-11-03"
   display_name: 雪茄顾问
   display_name_en: Cigar Expert
   agent_created: true
@@ -274,7 +274,7 @@ Every answer here ends with anti-recommendations — what not to hand this perso
 and why. A list of suggestions with no exclusions is the answer a catalogue can
 already give.
 
-
+### Flavour groups and cross-flavour storage
 
 `references/flavour-groups.md` carries a seven-group scheme — five odour
 categories plus two structural groups — with the wrapper-to-group mapping and the
@@ -327,7 +327,7 @@ of all seven sites.
 ## Source grades, conflicts and receipts
 
 Grade every figure before answering, then attach the receipt. The full table and
-the traps live in `references/data-sources.md`; three rules bind here.
+the traps live in `references/data-sources.md`. Three rules bind here:
 
 - **A figure no page was fetched for is unusable.** Remembered numbers, plausible
   numbers and assumed URLs are all the same category: they do not get said.
@@ -336,31 +336,31 @@ the traps live in `references/data-sources.md`; three rules bind here.
   action — a hazard threshold, a discard call — act on the conservative number
   and say which source it came from. Blending two figures invents a third one
   that nobody published.
-### 示例：带收据的回答结构
-
-每条查型号的回答建议包含四项，缺一不可：
-
-| 要素 | 写法示例 |
-|---|---|
-| 来源 | 来源：Cigar Century — https://www.cigarcentury.com/en/cigars/oliva-serie-v-melanio-robusto |
-| 等级 | 等级：A / 置信度：high（或 `review`，并列出缺失的尺寸或 token） |
-| 检索时间 | 检索时间：2026-10-30；现场抓取，或“缓存，{N} 天前” |
-| 局限 | 局限：仅引用参考站，非零售报价，不构成购买建议；不作真伪鉴定。 |
-
-示例：
-
-> 来源：Cigar Century（Arturo Fuente Hemingway Classic，Perfecto，Cameroon 茄衣，长 102 mm，环径 48）
-> 等级：A，置信度 high
-> 检索时间：2026-10-30，现场抓取
-> 局限：只引参考站，不给商家与购买引导；不作真伪鉴定。
-
 - **Answers carry receipts.** Source and field, grade (A/B/C), when retrieved or
   that it is cached, and what the source does *not* cover. A field absent from a
   source is "not recorded there", never absent and never low. Script confidence
   goes in the answer too — delivering a `review` result as settled information
   hides the doubt that made it a review.
 
-Two traps are restated here because guessing circumvents both: a Cigar Capitol URL
+### Receipt structure (every lookup answer)
+
+Each catalogue answer should contain these four elements:
+
+| Element | Example |
+|---|---|
+| Source | 来源：Cigar Century — https://www.cigarcentury.com/en/cigars/oliva-serie-v-melanio-robusto |
+| Grade / confidence | 等级：A / 置信度：high（or `review`, listing missing size or tokens） |
+| Retrieval time | 检索时间：2026-11-03；live fetch, or “cached, {N} days ago” |
+| Limitations | 局限：reference sites only, not retail pricing, not purchasing advice; no authenticity verdict |
+
+Example:
+
+> 来源：Cigar Century（Arturo Fuente Hemingway Classic，Perfecto，Cameroon 茄衣，长 102 mm，环径 48）
+> 等级：A，置信度 high
+> 检索时间：2026-11-03，现场抓取
+> 局限：只引参考站，不给商家与购买引导；不作真伪鉴定。
+
+Two traps are restated because guessing circumvents both: a Cigar Capitol URL
 that answers 200 may still not exist — an unlisted slug falls back to the
 homepage, so confirm each term against `capitol-index.md` — and a vitola name
 predicts nothing about its dimensions.
