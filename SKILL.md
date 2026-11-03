@@ -1,13 +1,14 @@
 ---
 name: cigar-expert
-version: 1.4.0
-last_updated: "2026-10-30"
-display_name: 雪茄顾问
-display_name_en: Cigar Expert
-agent_created: true
-description: Use when the user asks about a premium cigar — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; citing a published 100-point score; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; diagnosing a burn, draw or wrapper fault such as canoeing, tunneling, a plug, repeated relights or a cracked wrapper; pairing a drink or food; or deciding which cigar to smoke now given the time available and the strength ceiling. Answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or purchasing guidance.
-description_zh: 当用户询问雪茄参数（尺寸、环径、强度、茄衣/茄套/茄芯）、识别不确定或标注不全的型号、查 100 点评分、解释养护科学、按茄衣气味组分盒、诊断燃烧故障、给酒食搭配、或按时长与强度上限决定抽哪支时使用本 skill。中文作答，保留英文原名；只引用参考站点，不给商家与购买引导。常见中文触发词：雪茄、这支茄、环径、强度、茄衣、怎么养、长白毛、串味、斜烧、抽不动、怎么搭配、配什么酒、抽哪支、选哪支。
-description_en: Use when the user asks about a premium cigar — looking up a cigar's vitola, ring gauge, strength and leaf components; identifying an unknown or partially labelled cigar against a brand catalogue; explaining storage science such as humidity, plume versus mould, beetle risk and aging windows; assigning cigars to cross-flavour storage groups; citing published 100-point scores; diagnosing burn, draw or wrapper faults; pairing a drink or food by intensity and flavour group; and deciding which cigar to smoke now given the time available. Answers in Chinese while keeping the English name alongside. Reference sites only, with no retailers or purchasing guidance.
+description: Use when the user asks about a premium cigar — looking up a cigar's vitola, ring gauge, strength, wrapper/binder/filler, country or flavour profile; identifying an unknown or partially labelled cigar against a brand catalogue; citing a published 100-point score; explaining storage science such as humidity, plume versus mould, beetle risk, calibration or aging windows; assigning cigars to cross-flavour storage groups; diagnosing a burn, draw or wrapper fault such as canoeing, tunneling, a plug, repeated relights or a cracked wrapper; pairing a drink or food; or deciding which cigar to smoke now given the time available and the strength ceiling. Answers in Chinese with the original English name alongside. A second, optional layer reads the user's own ledger if one is configured. Sources are reference sites only, never retailers or purchasing guidance. Common Chinese triggers include 雪茄、环径、强度、茄衣、怎么养、长白毛、串味、斜烧、抽不动、搭配、抽哪支.
+metadata:
+  version: "1.4.0"
+  last_updated: "2026-10-30"
+  display_name: 雪茄顾问
+  display_name_en: Cigar Expert
+  agent_created: true
+  description_zh: 当用户询问雪茄参数（尺寸、环径、强度、茄衣/茄套/茄芯）、识别不确定或标注不全的型号、查 100 点评分、解释养护科学、按茄衣气味组分盒、诊断燃烧故障、给酒食搭配、或按时长与强度上限决定抽哪支时使用本 skill。中文作答，保留英文原名；只引用参考站点，不给商家与购买引导。常见中文触发词：雪茄、这支茄、环径、强度、茄衣、怎么养、长白毛、串味、斜烧、抽不动、怎么搭配、配什么酒、抽哪支、选哪支。
+  description_en: Use when the user asks about a premium cigar — looking up a cigar's vitola, ring gauge, strength and leaf components; identifying an unknown or partially labelled cigar against a brand catalogue; explaining storage science such as humidity, plume versus mould, beetle risk and aging windows; assigning cigars to cross-flavour storage groups; citing published 100-point scores; diagnosing burn, draw or wrapper faults; pairing a drink or food by intensity and flavour group; and deciding which cigar to smoke now given the time available. Answers in Chinese while keeping the English name alongside. Reference sites only, with no retailers or purchasing guidance.
 ---
 
 # Cigar Expert / 雪茄顾问
